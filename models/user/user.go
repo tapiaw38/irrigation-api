@@ -33,7 +33,6 @@ func (u *User) HashPassword() error {
 	if err != nil {
 		return err
 	}
-
 	u.PasswordHash = string(passwordHash)
 
 	return nil
