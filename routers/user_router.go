@@ -128,8 +128,8 @@ func (ur *UserRouter) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := ur.Storage.GetUsers(ctx)
 
 	if err != nil {
-		response := NewResponse(Error, "An error occurred when trying to get users "+err.Error(), nil)
-		ResponseWithJson(w, response, http.StatusInternalServerError)
+		http.Error(w, "An error occurred, no record found "+err.Error(), 400)
+		return
 	}
 
 	response := NewResponse(Message, "ok", users)
