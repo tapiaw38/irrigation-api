@@ -46,7 +46,7 @@ func (ur *UserRouter) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := user.LoginResponse{
+	data := user.LoginResponse{
 		User: user.User{
 			ID:        foundUser.ID,
 			FirstName: foundUser.FirstName,
@@ -59,9 +59,8 @@ func (ur *UserRouter) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Token: jwtKey,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	response := NewResponse(Message, "ok", data)
+	ResponseWithJson(w, response, http.StatusOK)
 
 	//coquie
 	expirationTime := time.Now().Add(24 * time.Hour)
@@ -117,9 +116,8 @@ func (ur *UserRouter) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusCreated)
 
 }
 
@@ -130,13 +128,12 @@ func (ur *UserRouter) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := ur.Storage.GetUsers(ctx)
 
 	if err != nil {
-		http.Error(w, "An error occurred when trying to get users "+err.Error(), 400)
-		return
+		response := NewResponse(Error, "An error occurred when trying to get users "+err.Error(), nil)
+		ResponseWithJson(w, response, http.StatusInternalServerError)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(users)
+	response := NewResponse(Message, "ok", users)
+	ResponseWithJson(w, response, http.StatusOK)
 
 }
 
@@ -158,9 +155,8 @@ func (ur *UserRouter) GetUserByIdHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
 
 }
 
@@ -177,9 +173,8 @@ func (ur *UserRouter) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
 
 }
 
@@ -212,9 +207,8 @@ func (ur UserRouter) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(user)
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // DeleteUserHandler handles the request to delete a user
@@ -237,6 +231,6 @@ func (ur UserRouter) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	response := NewResponse(Message, "ok", nil)
+	ResponseWithJson(w, response, http.StatusOK)
 }
