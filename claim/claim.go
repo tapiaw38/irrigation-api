@@ -29,7 +29,9 @@ func GenerateJWT(user user.User) (string, error) {
 		"last_name":  user.LastName,
 		"username":   user.Username,
 		"picture":    user.Picture,
+		"address":    user.Address,
 		"is_active":  user.IsActive,
+		"is_admin":   user.IsAdmin,
 		"exp":        user.CreatedAt.Add(time.Hour * 48).Unix(),
 	}
 

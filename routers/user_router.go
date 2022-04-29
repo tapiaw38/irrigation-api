@@ -39,6 +39,11 @@ func (ur *UserRouter) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !foundUser.IsActive {
+		http.Error(w, "This user is not activated, please contact your administrator", 400)
+		return
+	}
+
 	jwtKey, err := claim.GenerateJWT(foundUser)
 
 	if err != nil {
@@ -54,9 +59,11 @@ func (ur *UserRouter) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			Username:  foundUser.Username,
 			Email:     foundUser.Email,
 			Picture:   foundUser.Picture,
+			Address:   foundUser.Address,
 			IsActive:  foundUser.IsActive,
+			IsAdmin:   foundUser.IsAdmin,
 		},
-		Token: jwtKey,
+		AccessToken: jwtKey,
 	}
 
 	response := NewResponse(Message, "ok", data)
@@ -128,7 +135,7 @@ func (ur *UserRouter) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := ur.Storage.GetUsers(ctx)
 
 	if err != nil {
-		http.Error(w, "An error occurred, no record found "+err.Error(), 400)
+		http.Error(w, "An error occurred when trying to get users "+err.Error(), 400)
 		return
 	}
 

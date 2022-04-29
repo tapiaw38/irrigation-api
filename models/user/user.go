@@ -14,17 +14,19 @@ type User struct {
 	Username     string    `json:"username,omitempty"`
 	Email        string    `json:"email,omitempty"`
 	Picture      string    `json:"picture,omitempty"`
+	Address      string    `json:"address,omitempty"`
 	Password     string    `json:"password,omitempty"`
 	PasswordHash string    `json:"-"`
 	IsActive     bool      `json:"is_active,omitempty"`
+	IsAdmin      bool      `json:"is_admin,omitempty"`
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	UpdatedAt    time.Time `json:"updated_at,omitempty"`
 }
 
 // LoginResponse is the login response
 type LoginResponse struct {
-	User
-	Token string `json:"token,omitempty"`
+	User        interface{} `json:"user"`
+	AccessToken string      `json:"access_token"`
 }
 
 // HashPassword hashes the password

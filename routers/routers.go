@@ -13,7 +13,7 @@ func (ur *UserRouter) UserRoutes() *mux.Router {
 	router := r.PathPrefix("/").Subrouter()
 	//router.Use(middlewares.MiddlewareAuth)
 	router.HandleFunc("/all", ur.GetUsersHandler).Methods("GET")
-	router.HandleFunc("/get_by_id/{id}", ur.GetUserByIdHandler).Methods("GET")
+	router.HandleFunc("/{id}", ur.GetUserByIdHandler).Methods("GET")
 	router.HandleFunc("/update/{id}", ur.UpdateUserHandler).Methods("PUT")
 	router.HandleFunc("/delete/{id}", ur.DeleteUserHandler).Methods("DELETE")
 

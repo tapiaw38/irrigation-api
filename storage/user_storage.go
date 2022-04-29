@@ -17,7 +17,7 @@ func (ur *UserStorage) CheckUser(email string) (user.User, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	q := `
-	SELECT id, first_name, last_name, username, email, password, picture, is_active, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, password, picture, address, is_active, is_admin, created_at, updated_at
 		FROM users
 		WHERE email = $1;
 	`
@@ -34,7 +34,9 @@ func (ur *UserStorage) CheckUser(email string) (user.User, bool) {
 		&user.Email,
 		&user.Password,
 		&user.Picture,
+		&user.Address,
 		&user.IsActive,
+		&user.IsAdmin,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -51,9 +53,9 @@ func (ur *UserStorage) CheckUser(email string) (user.User, bool) {
 func (ur *UserStorage) CreateUser(ctx context.Context, u *user.User) (user.User, error) {
 
 	q := `
-    INSERT INTO users (first_name, last_name, username, email, picture, password, is_active, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id, first_name, last_name, username, email, picture, is_active, created_at, updated_at;
+    INSERT INTO users (first_name, last_name, username, email, picture, address, password, is_active, is_admin, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING id, first_name, last_name, username, email, picture, address, is_active, is_admin, created_at, updated_at;
     `
 
 	if err := u.HashPassword(); err != nil {
@@ -62,7 +64,7 @@ func (ur *UserStorage) CreateUser(ctx context.Context, u *user.User) (user.User,
 
 	row := ur.Data.DB.QueryRowContext(
 		ctx, q, u.FirstName, u.LastName, u.Username, u.Email,
-		u.Picture, u.PasswordHash, u.IsActive, time.Now(), time.Now(),
+		u.Picture, u.Address, u.PasswordHash, u.IsActive, u.IsAdmin, time.Now(), time.Now(),
 	)
 
 	users, err := ScanRowUsers(row)
@@ -105,7 +107,7 @@ func (ur *UserStorage) DeleteUser(ctx context.Context, id string) error {
 func (ur *UserStorage) GetUsers(ctx context.Context) ([]user.User, error) {
 
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, is_active, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, picture, address, is_active, is_admin, created_at, updated_at
 		FROM users;
 	`
 
@@ -136,7 +138,7 @@ func (ur *UserStorage) GetUsers(ctx context.Context) ([]user.User, error) {
 func (ur *UserStorage) GetUserById(ctx context.Context, id string) (user.User, error) {
 
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, is_active, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, picture, address, is_active, is_admin, created_at, updated_at
 		FROM users
 		WHERE id = $1;
 	`
@@ -158,7 +160,7 @@ func (ur *UserStorage) GetUserById(ctx context.Context, id string) (user.User, e
 func (ur *UserStorage) GetUserByUsername(ctx context.Context, username string) (user.User, error) {
 
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, is_active, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, picture, address, is_active, is_admin, created_at, updated_at
 		FROM users
 		WHERE username = $1;
 	`
@@ -182,9 +184,9 @@ func (ur *UserStorage) UpdateUser(ctx context.Context, id string, u user.User) (
 
 	q := `
 	UPDATE users
-		SET first_name = $1, last_name = $2, username = $3, email = $4, picture = $5, is_active = $6, updated_at = $7
-		WHERE id = $8
-		RETURNING id, first_name, last_name, username, email, picture, is_active, created_at, updated_at;
+		SET first_name = $1, last_name = $2, username = $3, email = $4, picture = $5, address = $6, is_active = $7, is_admin = $8 updated_at = $9
+		WHERE id = $10
+		RETURNING id, first_name, last_name, username, email, picture, address, is_active, is_admin, created_at, updated_at;
 	`
 
 	row := ur.Data.DB.QueryRowContext(

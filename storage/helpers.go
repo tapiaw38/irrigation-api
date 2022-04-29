@@ -18,7 +18,9 @@ func ScanRowUsers(s Scanner) (user.User, error) {
 		&u.Username,
 		&u.Email,
 		&u.Picture,
+		&u.Address,
 		&u.IsActive,
+		&u.IsAdmin,
 		&u.CreatedAt,
 		&u.UpdatedAt,
 	)
