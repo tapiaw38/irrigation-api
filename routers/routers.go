@@ -14,8 +14,9 @@ func (ur *UserRouter) UserRoutes() *mux.Router {
 	//router.Use(middlewares.MiddlewareAuth)
 	router.HandleFunc("/all", ur.GetUsersHandler).Methods("GET")
 	router.HandleFunc("/{id}", ur.GetUserByIdHandler).Methods("GET")
+	router.HandleFunc("/username/{username}", ur.GetUserByUsernameHandler).Methods("GET")
 	router.HandleFunc("/update/{id}", ur.UpdateUserHandler).Methods("PUT")
-	router.HandleFunc("/delete/{id}", ur.DeleteUserHandler).Methods("DELETE")
+	router.HandleFunc("/partial/{id}", ur.PartialUpdateUserHandler).Methods("PUT")
 
 	return r
 }

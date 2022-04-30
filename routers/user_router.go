@@ -171,7 +171,12 @@ func (ur *UserRouter) GetUserByIdHandler(w http.ResponseWriter, r *http.Request)
 func (ur *UserRouter) GetUserByUsernameHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	username := r.URL.Query().Get("username")
+	username := mux.Vars(r)["username"]
+
+	if username == "" {
+		http.Error(w, "An error occurred, username is required", http.StatusBadRequest)
+		return
+	}
 
 	user, err := ur.Storage.GetUserByUsername(ctx, username)
 
@@ -208,6 +213,39 @@ func (ur UserRouter) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	user, err := ur.Storage.UpdateUser(ctx, id, u)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// PartialUpdateUserHandler handles the request to update a user
+func (ur UserRouter) PartialUpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	var u user.User
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+		return
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&u)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to enter a user "+err.Error(), 400)
+		return
+	}
+
+	defer r.Body.Close()
+
+	ctx := r.Context()
+	user, err := ur.Storage.PartialUpdateUser(ctx, id, u)
 
 	if err != nil {
 		http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)

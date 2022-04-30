@@ -11,4 +11,5 @@ type Storage interface {
 	GetUserById(ctx context.Context, id string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	UpdateUser(ctx context.Context, id string, user User) (User, error)
+	PartialUpdateUser(ctx context.Context, id string, user User) (User, error)
 }
