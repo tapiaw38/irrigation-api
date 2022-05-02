@@ -23,3 +23,16 @@ CREATE TABLE IF NOT EXISTS roles (
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_roles PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS producers (
+    id BIGSERIAL NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255),
+    document_number VARCHAR(255) UNIQUE,
+    birth_date DATE,
+    phone_number VARCHAR(255),
+    address VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT pk_producers PRIMARY KEY (id)
+);

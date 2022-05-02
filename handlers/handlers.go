@@ -22,8 +22,15 @@ func HandlerServer() {
 		},
 	}
 
+	producers := &routers.ProducerRouter{
+		Storage: &storage.ProducerStorage{
+			Data: storage.NewConnection(),
+		},
+	}
+
 	// Mount the routers
 	mount(router, "/users", users.UserRoutes())
+	mount(router, "/producers", producers.ProducerRoutes())
 
 	// Mount the middleware
 	router.Use(middlewares.MiddlewareLog)
