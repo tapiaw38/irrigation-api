@@ -26,7 +26,7 @@ func (pr *ProducerRouter) ProducerRoutes() *mux.Router {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/create", pr.CreateProducersHandler).Methods("POST")
-	//r.HandleFunc("/all", pr.GetProductsHandler).Methods("GET")
+	r.HandleFunc("/all", pr.GetProducersHandler).Methods("GET")
 	//r.HandleFunc("/{id}", pr.GetProductByIdHandler).Methods("GET")
 	//r.HandleFunc("/update/{id}", pr.UpdateProductHandler).Methods("PUT")
 	//r.HandleFunc("/partial/{id}", pr.PartialUpdateProductHandler).Methods("PUT")

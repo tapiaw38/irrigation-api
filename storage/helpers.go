@@ -2,7 +2,9 @@ package storage
 
 import (
 	"database/sql"
+	"time"
 
+	"github.com/tapiaw38/irrigation-api/models/producer"
 	"github.com/tapiaw38/irrigation-api/models/user"
 )
 
@@ -10,6 +12,7 @@ type Scanner interface {
 	Scan(dest ...interface{}) error
 }
 
+// ScanRowUsers is a function to scan a row to a user.User
 func ScanRowUsers(s Scanner) (user.User, error) {
 	u := user.User{}
 	var lastName, picture, phoneNumber, address sql.NullString
@@ -39,6 +42,36 @@ func ScanRowUsers(s Scanner) (user.User, error) {
 	u.Address = address.String
 
 	return u, nil
+}
+
+// ScanRowProducers is a function to scan a row to a producer.Producer
+func ScanRowProducers(s Scanner) (producer.Producer, error) {
+	p := producer.Producer{}
+
+	var lastName, phoneNumber, address sql.NullString
+
+	err := s.Scan(
+		&p.ID,
+		&p.FirstName,
+		&lastName,
+		&p.DocumentNumber,
+		&p.BirthDate,
+		&p.Address,
+		&phoneNumber,
+		&address,
+		&p.CreatedAt,
+		&p.UpdatedAt,
+	)
+
+	if err != nil {
+		return p, err
+	}
+
+	p.LastName = lastName.String
+	p.PhoneNumber = phoneNumber.String
+	p.Address = address.String
+
+	return p, nil
 }
 
 // helper function to control the null fields
@@ -84,4 +117,9 @@ func BoolToNull(b bool) sql.NullBool {
 		null.Valid = true
 	}
 	return null
+}
+
+// ParsinTime is a function to convert a time.Time to a sql.NullTime
+func ParsingTime(t time.Time) string {
+	return t.Format("RFC3339")
 }

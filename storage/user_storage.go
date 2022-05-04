@@ -141,7 +141,6 @@ func (ur *UserStorage) GetUsers(ctx context.Context) ([]user.User, error) {
 	}
 
 	return users, nil
-
 }
 
 // Get user by id from database

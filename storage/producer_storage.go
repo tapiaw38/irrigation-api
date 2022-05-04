@@ -43,3 +43,35 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 	return pds, nil
 
 }
+
+// GetProducers returns all producers from the database
+func (ps *ProducerStorage) GetProducers(ctx context.Context) ([]producer.Producer, error) {
+
+	q := `
+	SELECT id, first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at
+		FROM producers;
+	`
+
+	rows, err := ps.Data.DB.QueryContext(ctx, q)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	pds := []producer.Producer{}
+
+	for rows.Next() {
+		p, err := ScanRowProducers(rows)
+
+		if err != nil {
+			return nil, err
+		}
+
+		pds = append(pds, p)
+	}
+
+	return pds, nil
+}

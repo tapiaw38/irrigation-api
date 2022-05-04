@@ -53,15 +53,16 @@ func (ur *UserRouter) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := user.LoginResponse{
 		User: user.User{
-			ID:        foundUser.ID,
-			FirstName: foundUser.FirstName,
-			LastName:  foundUser.LastName,
-			Username:  foundUser.Username,
-			Email:     foundUser.Email,
-			Picture:   foundUser.Picture,
-			Address:   foundUser.Address,
-			IsActive:  foundUser.IsActive,
-			IsAdmin:   foundUser.IsAdmin,
+			ID:          foundUser.ID,
+			FirstName:   foundUser.FirstName,
+			LastName:    foundUser.LastName,
+			Username:    foundUser.Username,
+			Email:       foundUser.Email,
+			Picture:     foundUser.Picture,
+			PhoneNumber: foundUser.PhoneNumber,
+			Address:     foundUser.Address,
+			IsActive:    foundUser.IsActive,
+			IsAdmin:     foundUser.IsAdmin,
 		},
 		AccessToken: jwtKey,
 	}
@@ -141,7 +142,6 @@ func (ur *UserRouter) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := NewResponse(Message, "ok", users)
 	ResponseWithJson(w, response, http.StatusOK)
-
 }
 
 // GetUserByIdHandler handles the request to get a user by id

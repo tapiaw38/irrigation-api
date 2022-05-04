@@ -35,5 +35,19 @@ func (pr *ProducerRouter) CreateProducersHandler(w http.ResponseWriter, r *http.
 
 	response := NewResponse(Message, "ok", producers)
 	ResponseWithJson(w, response, http.StatusOK)
+}
 
+// GetProducersHandler handles the request to get all producers
+func (pr *ProducerRouter) GetProducersHandler(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	producers, err := pr.Storage.GetProducers(ctx)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", producers)
+	ResponseWithJson(w, response, http.StatusOK)
 }

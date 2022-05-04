@@ -7,7 +7,7 @@ type Producer struct {
 	FirstName      string    `json:"first_name,omitempty"`
 	LastName       string    `json:"last_name,omitempty"`
 	DocumentNumber string    `json:"document_number,omitempty"`
-	BirthDate      time.Time `json:"birth_date,omitempty"`
+	BirthDate      string    `json:"birth_date,omitempty"`
 	PhoneNumber    string    `json:"phone_number,omitempty"`
 	Address        string    `json:"address,omitempty"`
 	CreatedAt      time.Time `json:"created_at,omitempty"`
