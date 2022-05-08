@@ -32,7 +32,48 @@ CREATE TABLE IF NOT EXISTS producers (
     birth_date DATE,
     phone_number VARCHAR(255),
     address VARCHAR(255),
+    is_active BOOLEAN,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_producers PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS productions (
+    id BIGINT NOT NULL,
+    producer BIGINT,
+    lote_number VARCHAR(255),
+    entry VARCHAR(255),
+    name VARCHAR(255),
+    production_type VARCHAR(255),
+    latitude DECIMAL(10,8) NOT NULL,
+    longitude DECIMAL(11,8) NOT NULL,
+    picture VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT pk_productions PRIMARY KEY (id),
+    CONSTRAINT fk_producers_productions FOREIGN KEY (producer)
+    REFERENCES producers(id)
+);
+
+CREATE TABLE IF NOT EXISTS sections (
+    id BIGSERIAL NOT NULL,
+    section_number VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT pk_sections PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS intakes (
+    id BIGSERIAL NOT NULL,
+    itake_number VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    section BIGINT,
+    latitude DECIMAL(10,8) NOT NULL,
+    longitude DECIMAL(11,8) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT pk_intakes PRIMARY KEY (id),
+    CONSTRAINT fk_intakes_sections FOREIGN KEY (section) 
+    REFERENCES sections(id)
 );

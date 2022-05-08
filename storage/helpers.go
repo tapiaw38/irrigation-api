@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/tapiaw38/irrigation-api/models/producer"
+	"github.com/tapiaw38/irrigation-api/models/production"
 	"github.com/tapiaw38/irrigation-api/models/user"
 )
 
@@ -56,7 +57,6 @@ func ScanRowProducers(s Scanner) (producer.Producer, error) {
 		&lastName,
 		&p.DocumentNumber,
 		&p.BirthDate,
-		&p.Address,
 		&phoneNumber,
 		&address,
 		&p.CreatedAt,
@@ -72,6 +72,42 @@ func ScanRowProducers(s Scanner) (producer.Producer, error) {
 	p.Address = address.String
 
 	return p, nil
+}
+
+// ScanRowProduction is a function to scan a row to a producer.Production
+func ScanRowProduction(s Scanner) (production.Production, error) {
+	pd := production.Production{}
+
+	var latitude, longitude sql.NullFloat64
+	var loteNumber, entry, picture sql.NullString
+
+	err := s.Scan(
+		&pd.ID,
+		&pd.Producer,
+		&loteNumber,
+		&entry,
+		&pd.Name,
+		&pd.ProductionType,
+		&latitude,
+		&longitude,
+		&picture,
+		&pd.CreatedAt,
+		&pd.UpdatedAt,
+	)
+
+	if err != nil {
+		return pd, err
+	}
+
+	pd.LoteNumber = loteNumber.String
+	pd.Entry = entry.String
+	pd.Picture = picture.String
+	pd.Latitude = latitude.Float64
+	pd.Longitude = longitude.Float64
+
+	return pd, nil
+
+	// return pd, nil
 }
 
 // helper function to control the null fields

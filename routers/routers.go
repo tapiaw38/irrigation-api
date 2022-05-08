@@ -33,3 +33,13 @@ func (pr *ProducerRouter) ProducerRoutes() *mux.Router {
 
 	return r
 }
+
+// ProductionRoutes is a function that returns a router for the production routes
+func (pr *ProductionRouter) ProductionRoutes() *mux.Router {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/create", pr.CreateProductionHandler).Methods("POST")
+	r.HandleFunc("/all", pr.GetProductionsHandler).Methods("GET")
+
+	return r
+}

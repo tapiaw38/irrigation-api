@@ -67,6 +67,7 @@ func (ps *ProducerStorage) GetProducers(ctx context.Context) ([]producer.Produce
 		p, err := ScanRowProducers(rows)
 
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 
