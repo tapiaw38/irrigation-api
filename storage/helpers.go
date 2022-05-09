@@ -74,7 +74,7 @@ func ScanRowProducers(s Scanner) (producer.Producer, error) {
 	return p, nil
 }
 
-// ScanRowProduction is a function to scan a row to a producer.Production
+// ScanRowProduction is a function to scan a row to a production.Production
 func ScanRowProduction(s Scanner) (production.Production, error) {
 	pd := production.Production{}
 
@@ -88,6 +88,7 @@ func ScanRowProduction(s Scanner) (production.Production, error) {
 		&entry,
 		&pd.Name,
 		&pd.ProductionType,
+		&pd.Area,
 		&latitude,
 		&longitude,
 		&picture,
@@ -106,8 +107,60 @@ func ScanRowProduction(s Scanner) (production.Production, error) {
 	pd.Longitude = longitude.Float64
 
 	return pd, nil
+}
 
-	// return pd, nil
+// ScanRowProduction is a function to scan a row to a production.ProductionResponse
+func ScanRowProductionResponse(s Scanner) (production.ProductionResponse, error) {
+	pdcs := production.ProductionResponse{}
+
+	var latitude, longitude sql.NullFloat64
+	var loteNumber, entry, picture sql.NullString
+
+	var producerId sql.NullInt64
+	var producerFirstName, producerLastName sql.NullString
+	var producerDocumentNumber, producerBirthDate sql.NullString
+	var producerPhoneNumber, producerAddress sql.NullString
+
+	err := s.Scan(
+		&pdcs.ID,
+		&producerId,
+		&producerFirstName,
+		&producerLastName,
+		&producerDocumentNumber,
+		&producerBirthDate,
+		&producerPhoneNumber,
+		&producerAddress,
+		&loteNumber,
+		&entry,
+		&pdcs.Name,
+		&pdcs.ProductionType,
+		&pdcs.Area,
+		&latitude,
+		&longitude,
+		&picture,
+		&pdcs.CreatedAt,
+		&pdcs.UpdatedAt,
+	)
+
+	if err != nil {
+		return pdcs, err
+	}
+
+	pdcs.LoteNumber = loteNumber.String
+	pdcs.Entry = entry.String
+	pdcs.Picture = picture.String
+	pdcs.Latitude = latitude.Float64
+	pdcs.Longitude = longitude.Float64
+
+	pdcs.Producer.ID = producerId.Int64
+	pdcs.Producer.FirstName = producerFirstName.String
+	pdcs.Producer.LastName = producerLastName.String
+	pdcs.Producer.DocumentNumber = producerDocumentNumber.String
+	pdcs.Producer.BirthDate = producerBirthDate.String
+	pdcs.Producer.PhoneNumber = producerPhoneNumber.String
+	pdcs.Producer.Address = producerAddress.String
+
+	return pdcs, nil
 }
 
 // helper function to control the null fields

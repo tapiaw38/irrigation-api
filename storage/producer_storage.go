@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/tapiaw38/irrigation-api/models/producer"
 )
@@ -24,9 +25,19 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 
 	for _, p := range producers {
 
-		var id uint
+		var id int64
 
-		row := ps.Data.DB.QueryRowContext(ctx, q, p.FirstName, p.LastName, p.DocumentNumber, p.BirthDate, p.PhoneNumber, p.Address, p.CreatedAt, p.UpdatedAt)
+		row := ps.Data.DB.QueryRowContext(
+			ctx, q,
+			p.FirstName,
+			p.LastName,
+			p.DocumentNumber,
+			p.BirthDate,
+			p.PhoneNumber,
+			p.Address,
+			time.Now(),
+			time.Now(),
+		)
 
 		err := row.Scan(&id)
 

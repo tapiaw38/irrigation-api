@@ -39,12 +39,13 @@ CREATE TABLE IF NOT EXISTS producers (
 );
 
 CREATE TABLE IF NOT EXISTS productions (
-    id BIGINT NOT NULL,
+    id BIGSERIAL NOT NULL,
     producer BIGINT,
     lote_number VARCHAR(255),
     entry VARCHAR(255),
     name VARCHAR(255),
     production_type VARCHAR(255),
+    area DECIMAL(10,2),
     latitude DECIMAL(10,8) NOT NULL,
     longitude DECIMAL(11,8) NOT NULL,
     picture VARCHAR(255),
