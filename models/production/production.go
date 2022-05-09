@@ -18,6 +18,7 @@ type Production struct {
 	UpdatedAt      string  `json:"updated_at,omitempty"`
 }
 
+// ProductionResponse is the struct that holds the production data
 type ProductionResponse struct {
 	ID             int64             `json:"id,omitempty"`
 	Producer       producer.Producer `json:"producer,omitempty"`
