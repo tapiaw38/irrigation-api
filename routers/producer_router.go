@@ -11,6 +11,7 @@ type ProducerRouter struct {
 	Storage producer.Storage
 }
 
+// CreateProducersHandler handles the request to get all producers
 func (pr *ProducerRouter) CreateProducersHandler(w http.ResponseWriter, r *http.Request) {
 
 	var producers []producer.Producer
