@@ -2,6 +2,7 @@ package producer
 
 import "time"
 
+// Producer is the structure that holds the information about a Producer.
 type Producer struct {
 	ID             int64     `json:"id,omitempty"`
 	FirstName      string    `json:"first_name,omitempty"`
