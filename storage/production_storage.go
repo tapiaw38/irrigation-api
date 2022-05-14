@@ -96,3 +96,73 @@ func (pd *ProductionStorage) GetProductions(ctx context.Context) ([]production.P
 
 	return productions, nil
 }
+
+// UpdateProduction updates a production in the database
+func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p production.Production) (production.ProductionResponse, error) {
+
+	q := `
+	WITH updated AS (
+		UPDATE productions
+		SET producer = $1, lote_number = $2, entry = $3, 
+		name = $4, production_type = $5, area = $6, 
+		latitude = $7, longitude = $8, picture = $9, 
+		updated_at = $10
+		WHERE id = $11
+		RETURNING id, producer, lote_number, entry, name, production_type, area, latitude, longitude, picture, created_at, updated_at
+	)
+	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
+		producers.document_number, producers.birth_date, producers.phone_number, 
+		producers.address,
+		updated.lote_number, updated.entry, updated.name, 
+		updated.production_type, updated.area, updated.latitude, 
+		updated.longitude, updated.picture, updated.created_at, 
+		updated.updated_at
+	FROM updated
+	LEFT JOIN producers ON updated.producer = producers.id
+`
+
+	row := pd.Data.DB.QueryRowContext(
+		ctx, q,
+		p.Producer,
+		p.LoteNumber,
+		p.Entry,
+		p.Name,
+		p.ProductionType,
+		p.Area,
+		p.Latitude,
+		p.Longitude,
+		p.Picture,
+		time.Now(),
+		id,
+	)
+
+	pds, err := ScanRowProductionResponse(row)
+
+	if err != nil {
+		log.Println(err)
+		return pds, err
+	}
+
+	return pds, nil
+}
+
+// DeleteProduction deletes a production from the database
+func (pd *ProductionStorage) DeleteProduction(ctx context.Context, id string) (production.Production, error) {
+
+	q := `
+	DELETE FROM productions
+		WHERE productions.id = $1
+		RETURNING productions.id;
+	`
+
+	row := pd.Data.DB.QueryRowContext(ctx, q, id)
+
+	pds, err := ScanRowProduction(row)
+
+	if err != nil {
+		log.Println(err)
+		return pds, err
+	}
+
+	return pds, nil
+}

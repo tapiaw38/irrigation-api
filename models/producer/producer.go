@@ -11,6 +11,7 @@ type Producer struct {
 	BirthDate      string    `json:"birth_date,omitempty"`
 	PhoneNumber    string    `json:"phone_number,omitempty"`
 	Address        string    `json:"address,omitempty"`
+	IsActive       bool      `json:"is_active,omitempty"`
 	CreatedAt      time.Time `json:"created_at,omitempty"`
 	UpdatedAt      time.Time `json:"updated_at,omitempty"`
 }

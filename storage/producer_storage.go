@@ -16,7 +16,7 @@ type ProducerStorage struct {
 func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []producer.Producer) ([]producer.Producer, error) {
 
 	q := `
-	INSERT INTO producers (first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at)
+	INSERT INTO producers (first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id;
 	`
@@ -35,6 +35,7 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 			p.BirthDate,
 			p.PhoneNumber,
 			p.Address,
+			p.IsActive,
 			time.Now(),
 			time.Now(),
 		)
@@ -59,7 +60,9 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 func (ps *ProducerStorage) GetProducers(ctx context.Context) ([]producer.Producer, error) {
 
 	q := `
-	SELECT id, first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at
+	SELECT id, first_name, last_name, document_number, 
+		birth_date, phone_number, address, 
+		is_active, created_at, updated_at
 		FROM producers;
 	`
 
@@ -86,4 +89,88 @@ func (ps *ProducerStorage) GetProducers(ctx context.Context) ([]producer.Produce
 	}
 
 	return pds, nil
+}
+
+// UpdateProducer updates a producer in the database
+func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p producer.Producer) (producer.Producer, error) {
+
+	q := `
+	UPDATE producers
+		SET first_name = $1, last_name = $2, document_number = $3, 
+		birth_date = $4, phone_number = $5, address = $6, 
+		is_active, updated_at = $7
+		WHERE id = $8
+		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
+	`
+
+	row := ps.Data.DB.QueryRowContext(
+		ctx, q,
+		p.FirstName,
+		p.LastName,
+		p.DocumentNumber,
+		p.BirthDate,
+		p.PhoneNumber,
+		p.Address,
+		p.IsActive,
+		time.Now(),
+		id,
+	)
+
+	producer, err := ScanRowProducers(row)
+
+	if err != nil {
+		log.Println(err)
+		return producer, err
+	}
+
+	return producer, nil
+}
+
+// PartialUpdateProducer updates a producer in the database
+func (ps *ProducerStorage) PartialUpdateProducer(ctx context.Context, id string, p producer.Producer) (producer.Producer, error) {
+
+	q := `
+	UPDATE producers
+		SET
+			first_name = CASE WHEN $1 = '' THEN first_name ELSE $1 END,
+			last_name = CASE WHEN $2 = '' THEN last_name ELSE $2 END,
+			document_number = CASE WHEN $3 = '' THEN document_number ELSE $3 END,
+			birth_date = CASE WHEN $4 = '' THEN birth_date ELSE $4 END,
+			phone_number = CASE WHEN $5 = '' THEN phone_number ELSE $5 END,
+			address = CASE WHEN $6 = '' THEN address ELSE $6 END,
+			is_active = 
+				CASE
+					WHEN $7 = TRUE AND is_active = FALSE THEN TRUE
+					WHEN $7 = FALSE AND is_active = TRUE THEN FALSE
+					WHEN $7 = NULL THEN is_active
+					ELSE is_active
+				END,
+			updated_at = $8
+		WHERE id = $9
+		RETURNING id, first_name, last_name, document_number, 
+			birth_date, phone_number, address, is_active, 
+			created_at, updated_at;
+	`
+
+	row := ps.Data.DB.QueryRowContext(
+		ctx, q,
+		p.FirstName,
+		p.LastName,
+		p.DocumentNumber,
+		p.BirthDate,
+		p.PhoneNumber,
+		p.Address,
+		p.IsActive,
+		time.Now(),
+		id,
+	)
+
+	producer, err := ScanRowProducers(row)
+
+	if err != nil {
+		log.Println(err)
+		return producer, err
+	}
+
+	return producer, nil
 }

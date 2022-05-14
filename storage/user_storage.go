@@ -253,5 +253,4 @@ func (ur *UserStorage) PartialUpdateUser(ctx context.Context, id string, u user.
 	}
 
 	return u, nil
-
 }

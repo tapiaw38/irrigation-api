@@ -59,6 +59,7 @@ func ScanRowProducers(s Scanner) (producer.Producer, error) {
 		&p.BirthDate,
 		&phoneNumber,
 		&address,
+		&p.IsActive,
 		&p.CreatedAt,
 		&p.UpdatedAt,
 	)

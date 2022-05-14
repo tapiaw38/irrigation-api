@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/models/production"
 )
 
@@ -50,5 +51,62 @@ func (pd *ProductionRouter) GetProductionsHandler(w http.ResponseWriter, r *http
 	}
 
 	response := NewResponse(Message, "ok", productions)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// UpdateProductionHandler handles the request to update a production
+func (pd *ProductionRouter) UpdateProductionHandler(w http.ResponseWriter, r *http.Request) {
+
+	var production production.Production
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", 400)
+		return
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&production)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to enter a production "+err.Error(), 400)
+		return
+	}
+
+	defer r.Body.Close()
+
+	ctx := r.Context()
+
+	pds, err := pd.Storage.UpdateProduction(ctx, id, production)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to update a production in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", pds)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// DeleteProductionHandler handles the request to delete a production
+func (pd *ProductionRouter) DeleteProductionHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	pds, err := pd.Storage.DeleteProduction(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to delete a production in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", pds)
 	ResponseWithJson(w, response, http.StatusOK)
 }

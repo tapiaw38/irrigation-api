@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS producers (
     birth_date DATE,
     phone_number VARCHAR(255),
     address VARCHAR(255),
-    is_active BOOLEAN,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_producers PRIMARY KEY (id)

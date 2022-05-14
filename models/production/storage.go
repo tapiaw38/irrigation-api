@@ -6,4 +6,6 @@ import "context"
 type Storage interface {
 	CreateProductions(ctx context.Context, productions []Production) ([]Production, error)
 	GetProductions(ctx context.Context) ([]ProductionResponse, error)
+	UpdateProduction(ctx context.Context, id string, production Production) (ProductionResponse, error)
+	DeleteProduction(ctx context.Context, id string) (Production, error)
 }
