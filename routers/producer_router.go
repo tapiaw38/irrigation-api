@@ -54,6 +54,24 @@ func (pr *ProducerRouter) GetProducersHandler(w http.ResponseWriter, r *http.Req
 	ResponseWithJson(w, response, http.StatusOK)
 }
 
+// GetProducerByIdHandler handles the request to get a producer by id
+func (pr *ProducerRouter) GetProducerByIDHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	ctx := r.Context()
+	producer, err := pr.Storage.GetProducerByID(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", producer)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
 // UpdateProducerHandler handles the request to update a producer
 func (pr *ProducerRouter) UpdateProducerHandler(w http.ResponseWriter, r *http.Request) {
 

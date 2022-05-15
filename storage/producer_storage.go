@@ -16,7 +16,7 @@ type ProducerStorage struct {
 func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []producer.Producer) ([]producer.Producer, error) {
 
 	q := `
-	INSERT INTO producers (first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at)
+	INSERT INTO producers (first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id;
 	`
@@ -35,7 +35,6 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 			p.BirthDate,
 			p.PhoneNumber,
 			p.Address,
-			p.IsActive,
 			time.Now(),
 			time.Now(),
 		)
@@ -91,6 +90,29 @@ func (ps *ProducerStorage) GetProducers(ctx context.Context) ([]producer.Produce
 	return pds, nil
 }
 
+// GetProducerByID returns a producer from the database by id
+func (ps *ProducerStorage) GetProducerByID(ctx context.Context, id string) (producer.Producer, error) {
+
+	q := `
+	SELECT id, first_name, last_name, document_number,
+		birth_date, phone_number, address,
+		is_active, created_at, updated_at
+		FROM producers
+		WHERE id = $1;
+	`
+
+	row := ps.Data.DB.QueryRowContext(ctx, q, id)
+
+	p, err := ScanRowProducers(row)
+
+	if err != nil {
+		log.Println(err)
+		return p, err
+	}
+
+	return p, nil
+}
+
 // UpdateProducer updates a producer in the database
 func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p producer.Producer) (producer.Producer, error) {
 
@@ -100,7 +122,7 @@ func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p prod
 		birth_date = $4, phone_number = $5, address = $6, 
 		is_active, updated_at = $7
 		WHERE id = $8
-		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
+		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at;
 	`
 
 	row := ps.Data.DB.QueryRowContext(
@@ -111,7 +133,6 @@ func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p prod
 		p.BirthDate,
 		p.PhoneNumber,
 		p.Address,
-		p.IsActive,
 		time.Now(),
 		id,
 	)
