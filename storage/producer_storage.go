@@ -119,10 +119,9 @@ func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p prod
 	q := `
 	UPDATE producers
 		SET first_name = $1, last_name = $2, document_number = $3, 
-		birth_date = $4, phone_number = $5, address = $6, 
-		is_active, updated_at = $7
+		birth_date = $4, phone_number = $5, address = $6, updated_at = $7
 		WHERE id = $8
-		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at;
+		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
 	`
 
 	row := ps.Data.DB.QueryRowContext(
@@ -183,6 +182,30 @@ func (ps *ProducerStorage) PartialUpdateProducer(ctx context.Context, id string,
 		p.Address,
 		p.IsActive,
 		time.Now(),
+		id,
+	)
+
+	producer, err := ScanRowProducers(row)
+
+	if err != nil {
+		log.Println(err)
+		return producer, err
+	}
+
+	return producer, nil
+}
+
+// DeleteProducer deletes a producer from the database
+func (ps *ProducerStorage) DeleteProducer(ctx context.Context, id string) (producer.Producer, error) {
+
+	q := `
+	DELETE FROM producers
+		WHERE id = $1
+		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
+	`
+
+	row := ps.Data.DB.QueryRowContext(
+		ctx, q,
 		id,
 	)
 

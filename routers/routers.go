@@ -30,6 +30,7 @@ func (pr *ProducerRouter) ProducerRoutes() *mux.Router {
 	r.HandleFunc("/{id}", pr.GetProducerByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", pr.UpdateProducerHandler).Methods("PUT")
 	r.HandleFunc("/partial/{id}", pr.PartialUpdateProducerHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", pr.DeleteProducerHandler).Methods("PUT")
 
 	return r
 }

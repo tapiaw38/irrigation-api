@@ -139,3 +139,22 @@ func (pr *ProducerRouter) PartialUpdateProducerHandler(w http.ResponseWriter, r 
 	response := NewResponse(Message, "ok", producer)
 	ResponseWithJson(w, response, http.StatusOK)
 }
+
+// DeleteProducerHandler handles the request to delete a producer
+func (pr *ProducerRouter) DeleteProducerHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	ctx := r.Context()
+
+	producer, err := pr.Storage.DeleteProducer(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to delete a producer in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", producer)
+	ResponseWithJson(w, response, http.StatusOK)
+}

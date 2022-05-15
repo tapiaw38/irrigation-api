@@ -9,4 +9,5 @@ type Storage interface {
 	GetProducerByID(ctx context.Context, id string) (Producer, error)
 	UpdateProducer(ctx context.Context, id string, producer Producer) (Producer, error)
 	PartialUpdateProducer(ctx context.Context, id string, producer Producer) (Producer, error)
+	DeleteProducer(ctx context.Context, id string) (Producer, error)
 }
