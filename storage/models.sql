@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS productions (
     latitude DECIMAL(10,8) NOT NULL,
     longitude DECIMAL(11,8) NOT NULL,
     picture VARCHAR(255),
+    cadastral_registration VARCHAR(255),
+    district VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL,
     CONSTRAINT pk_productions PRIMARY KEY (id),

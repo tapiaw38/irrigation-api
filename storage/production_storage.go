@@ -16,8 +16,11 @@ type ProductionStorage struct {
 func (pd *ProductionStorage) CreateProductions(ctx context.Context, productions []production.Production) ([]production.Production, error) {
 
 	q := `
-	INSERT INTO productions (producer, lote_number, entry, name, production_type, area, latitude, longitude, picture, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	INSERT INTO productions (
+		producer, lote_number, entry, name, production_type, area, 
+		latitude, longitude, picture, cadastral_registration, 
+		district, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		RETURNING id;
 	`
 
@@ -38,6 +41,8 @@ func (pd *ProductionStorage) CreateProductions(ctx context.Context, productions 
 			p.Latitude,
 			p.Longitude,
 			p.Picture,
+			p.CadastralRegistration,
+			p.District,
 			time.Now(),
 			time.Now(),
 		)
@@ -66,8 +71,9 @@ func (pd *ProductionStorage) GetProductions(ctx context.Context) ([]production.P
 		producers.address,
 		productions.lote_number, productions.entry, productions.name, 
 		productions.production_type, productions.area, productions.latitude, 
-		productions.longitude, productions.picture, productions.created_at, 
-		productions.updated_at
+		productions.longitude, productions.picture,
+		productions.cadastral_registration, productions.district,
+		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id;
 	`
@@ -97,6 +103,35 @@ func (pd *ProductionStorage) GetProductions(ctx context.Context) ([]production.P
 	return productions, nil
 }
 
+// GetProductionsByID return a production from the database by id
+func (pd *ProductionStorage) GetProductionsByID(ctx context.Context, id string) (production.ProductionResponse, error) {
+
+	q := `
+	SELECT productions.id, producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
+		producers.address,
+		productions.lote_number, productions.entry, productions.name,
+		productions.production_type, productions.area, productions.latitude,
+		productions.longitude, productions.picture,
+		productions.cadastral_registration, productions.district,
+		productions.created_at, productions.updated_at
+		FROM productions
+		LEFT JOIN producers ON productions.producer = producers.id
+		WHERE productions.id = $1;
+	`
+
+	row := pd.Data.DB.QueryRowContext(ctx, q, id)
+
+	pds, err := ScanRowProductionResponse(row)
+
+	if err != nil {
+		log.Println(err)
+		return pds, err
+	}
+
+	return pds, nil
+}
+
 // UpdateProduction updates a production in the database
 func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p production.Production) (production.ProductionResponse, error) {
 
@@ -104,19 +139,22 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 	WITH updated AS (
 		UPDATE productions
 		SET producer = $1, lote_number = $2, entry = $3, 
-		name = $4, production_type = $5, area = $6, 
-		latitude = $7, longitude = $8, picture = $9, 
-		updated_at = $10
-		WHERE id = $11
-		RETURNING id, producer, lote_number, entry, name, production_type, area, latitude, longitude, picture, created_at, updated_at
+			name = $4, production_type = $5, area = $6, 
+			latitude = $7, longitude = $8, picture = $9,
+			cadastral_registration = $10, district = $11,
+			updated_at = $12
+		WHERE id = $13
+		RETURNING id, producer, lote_number, entry, name, 
+			production_type, area, latitude, longitude, picture, 
+			cadasral_registration, district, created_at, updated_at
 	)
 	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
 		producers.document_number, producers.birth_date, producers.phone_number, 
 		producers.address,
 		updated.lote_number, updated.entry, updated.name, 
 		updated.production_type, updated.area, updated.latitude, 
-		updated.longitude, updated.picture, updated.created_at, 
-		updated.updated_at
+		updated.longitude, updated.picture, updated.cadastral_registration,
+		updated.district, updated.created_at, updated.updated_at
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
 `
@@ -132,6 +170,8 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 		p.Latitude,
 		p.Longitude,
 		p.Picture,
+		p.CadastralRegistration,
+		p.District,
 		time.Now(),
 		id,
 	)

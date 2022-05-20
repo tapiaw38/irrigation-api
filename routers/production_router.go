@@ -54,6 +54,29 @@ func (pd *ProductionRouter) GetProductionsHandler(w http.ResponseWriter, r *http
 	ResponseWithJson(w, response, http.StatusOK)
 }
 
+// GetProductionByIDHandler handles the request to get a production by id
+func (pd *ProductionRouter) GetProductionByIDHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred when trying to get production by id", 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	pds, err := pd.Storage.GetProductionsByID(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get production by id "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", pds)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
 // UpdateProductionHandler handles the request to update a production
 func (pd *ProductionRouter) UpdateProductionHandler(w http.ResponseWriter, r *http.Request) {
 
