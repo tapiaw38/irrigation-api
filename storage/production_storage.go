@@ -191,8 +191,10 @@ func (pd *ProductionStorage) DeleteProduction(ctx context.Context, id string) (p
 
 	q := `
 	DELETE FROM productions
-		WHERE productions.id = $1
-		RETURNING productions.id;
+		WHERE id = $1
+		RETURNING id, producer, lote_number, entry, name,
+			production_type, area, latitude, longitude, picture,
+			cadastral_registration, district, created_at, updated_at;
 	`
 
 	row := pd.Data.DB.QueryRowContext(ctx, q, id)
