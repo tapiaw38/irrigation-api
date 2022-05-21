@@ -146,7 +146,7 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 		WHERE id = $13
 		RETURNING id, producer, lote_number, entry, name, 
 			production_type, area, latitude, longitude, picture, 
-			cadasral_registration, district, created_at, updated_at
+			cadastral_registration, district, created_at, updated_at
 	)
 	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
 		producers.document_number, producers.birth_date, producers.phone_number, 
