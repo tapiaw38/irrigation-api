@@ -6,6 +6,7 @@ import (
 
 	"github.com/tapiaw38/irrigation-api/models/producer"
 	"github.com/tapiaw38/irrigation-api/models/production"
+	"github.com/tapiaw38/irrigation-api/models/section"
 	"github.com/tapiaw38/irrigation-api/models/user"
 )
 
@@ -172,7 +173,31 @@ func ScanRowProductionResponse(s Scanner) (production.ProductionResponse, error)
 	return pdcs, nil
 }
 
-// helper function to control the null fields
+// ScanRowSection is a function to scan a row to a section.Section
+func ScanRowSection(s Scanner) (section.Section, error) {
+
+	sct := section.Section{}
+
+	var name sql.NullString
+
+	err := s.Scan(
+		&sct.ID,
+		&sct.SectionNumber,
+		&name,
+		&sct.CreatedAt,
+		&sct.UpdatedAt,
+	)
+
+	if err != nil {
+		return sct, err
+	}
+
+	sct.Name = name.String
+
+	return sct, nil
+}
+
+/*** helper function to control the null fields ***/
 
 // StringToNull is a function to convert a string to a sql.NullString
 func StringToNull(str string) sql.NullString {

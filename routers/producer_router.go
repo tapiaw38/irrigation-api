@@ -143,8 +143,12 @@ func (pr *ProducerRouter) PartialUpdateProducerHandler(w http.ResponseWriter, r 
 // DeleteProducerHandler handles the request to delete a producer
 func (pr *ProducerRouter) DeleteProducerHandler(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
-	id := vars["id"]
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+		return
+	}
 
 	ctx := r.Context()
 

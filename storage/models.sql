@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS sections (
 
 CREATE TABLE IF NOT EXISTS intakes (
     id BIGSERIAL NOT NULL,
-    itake_number VARCHAR(255) UNIQUE NOT NULL,
+    intake_number VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     section BIGINT,
     latitude DECIMAL(10,8) NOT NULL,

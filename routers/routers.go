@@ -47,3 +47,16 @@ func (pr *ProductionRouter) ProductionRoutes() *mux.Router {
 
 	return r
 }
+
+// SectionRoutes is a function that returns a router for the section routes
+func (sr *SectionRouter) SectionRoutes() *mux.Router {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/create", sr.CreateSectionsHandler).Methods("POST")
+	r.HandleFunc("/all", sr.GetSectionsHandler).Methods("GET")
+	r.HandleFunc("/{id}", sr.GetSectionByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", sr.UpdateSectionHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", sr.DeleteSectionHandler).Methods("DELETE")
+
+	return r
+}
