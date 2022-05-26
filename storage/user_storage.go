@@ -241,8 +241,8 @@ func (ur *UserStorage) PartialUpdateUser(ctx context.Context, id string, u user.
 	`
 
 	row := ur.Data.DB.QueryRowContext(
-		ctx, q, u.FirstName, StringToNull(u.LastName), u.Email,
-		StringToNull(u.Picture), StringToNull(u.PhoneNumber), StringToNull(u.Address),
+		ctx, q, u.FirstName, u.LastName, u.Email,
+		u.Picture, u.PhoneNumber, u.Address,
 		u.IsActive, u.IsAdmin, time.Now(), id,
 	)
 

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    picture VARCHAR(255),
+    picture VARCHAR(555),
     phone_number VARCHAR(255),
     address VARCHAR(255),
     is_active BOOLEAN,

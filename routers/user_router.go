@@ -2,12 +2,15 @@ package routers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/claim"
 	"github.com/tapiaw38/irrigation-api/models/user"
+	"github.com/tapiaw38/irrigation-api/utils"
 )
 
 // UserRouter is the router for the user api
@@ -278,4 +281,71 @@ func (ur UserRouter) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := NewResponse(Message, "ok", nil)
 	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// UploadAvatarHandler handles the request to upload an avatar
+
+func (ur UserRouter) UploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
+
+	var u user.User
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+		return
+	}
+
+	maxSize := int64(1024 * 1024 * 5) // 5MB
+
+	err := r.ParseMultipartForm(maxSize)
+
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Image too large. Max Size: %v", maxSize)
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("picture")
+
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Could not get uploaded file")
+		return
+	}
+
+	defer file.Close()
+
+	// create an AWS session which can be
+	// reused if we're uploading many files
+	utils.S3.NewSession()
+
+	fileName, err := utils.S3.UploadFileToS3(file, fileHeader, id)
+
+	if err != nil {
+		fmt.Fprintf(w, "Could not upload file error"+err.Error(), 400)
+		return
+	}
+
+	fileUrl, err := utils.S3.GenerateUrl(fileName)
+
+	if err != nil {
+		fmt.Fprintf(w, "Could not generate url error"+err.Error(), 400)
+		return
+	}
+
+	u.Picture = fileUrl
+	log.Println(u)
+
+	ctx := r.Context()
+	user, err := ur.Storage.PartialUpdateUser(ctx, id, u)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
+
 }
