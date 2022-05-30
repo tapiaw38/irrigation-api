@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS productions (
     CONSTRAINT pk_productions PRIMARY KEY (id),
     CONSTRAINT fk_producers_productions FOREIGN KEY (producer)
     REFERENCES producers(id)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS sections (

@@ -1,4 +1,4 @@
-package utils
+package libs
 
 import (
 	"bytes"
@@ -8,11 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/private/protocol/rest"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -74,16 +74,13 @@ func (t *S3Client) UploadFileToS3(file multipart.File, fileHeader *multipart.Fil
 }
 
 // GenerateUrl generates a url to the file in s3
-func (t *S3Client) GenerateUrl(keyName string) (string, error) {
+func (t *S3Client) GenerateUrl(keyName string) string {
 	req, _ := s3.New(t.Sess).GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
 		Key:    aws.String(keyName),
 	})
-	urlStr, err := req.Presign(15 * time.Minute)
+	rest.Build(req)
+	urlStr := req.HTTPRequest.URL.String()
 
-	if err != nil {
-		log.Println("Failed to sign request", err)
-		return "", err
-	}
-	return urlStr, nil
+	return urlStr
 }

@@ -9,8 +9,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/claim"
+	"github.com/tapiaw38/irrigation-api/libs"
 	"github.com/tapiaw38/irrigation-api/models/user"
-	"github.com/tapiaw38/irrigation-api/utils"
 )
 
 // UserRouter is the router for the user api
@@ -287,8 +287,6 @@ func (ur UserRouter) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func (ur UserRouter) UploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
 
-	var u user.User
-
 	id := mux.Vars(r)["id"]
 
 	if id == "" {
@@ -318,26 +316,28 @@ func (ur UserRouter) UploadAvatarHandler(w http.ResponseWriter, r *http.Request)
 
 	// create an AWS session which can be
 	// reused if we're uploading many files
-	utils.S3.NewSession()
+	libs.S3.NewSession()
 
-	fileName, err := utils.S3.UploadFileToS3(file, fileHeader, id)
+	fileName, err := libs.S3.UploadFileToS3(file, fileHeader, id)
 
 	if err != nil {
 		fmt.Fprintf(w, "Could not upload file error"+err.Error(), 400)
 		return
 	}
 
-	fileUrl, err := utils.S3.GenerateUrl(fileName)
+	ctx := r.Context()
+
+	fileUrl := libs.S3.GenerateUrl(fileName)
+
+	u, err := ur.Storage.GetUserById(ctx, id)
 
 	if err != nil {
-		fmt.Fprintf(w, "Could not generate url error"+err.Error(), 400)
+		fmt.Fprintf(w, "Could not get user from database"+err.Error(), 400)
 		return
 	}
 
 	u.Picture = fileUrl
-	log.Println(u)
 
-	ctx := r.Context()
 	user, err := ur.Storage.PartialUpdateUser(ctx, id, u)
 
 	if err != nil {
