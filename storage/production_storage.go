@@ -175,7 +175,6 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 		time.Now(),
 		id,
 	)
-	log.Println(p.Area)
 
 	pds, err := ScanRowProductionResponse(row)
 

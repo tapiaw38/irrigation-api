@@ -80,4 +80,5 @@ CREATE TABLE IF NOT EXISTS intakes (
     CONSTRAINT pk_intakes PRIMARY KEY (id),
     CONSTRAINT fk_intakes_sections FOREIGN KEY (section) 
     REFERENCES sections(id)
+    ON DELETE CASCADE
 );

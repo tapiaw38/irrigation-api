@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/tapiaw38/irrigation-api/models/intake"
 	"github.com/tapiaw38/irrigation-api/models/producer"
 	"github.com/tapiaw38/irrigation-api/models/production"
 	"github.com/tapiaw38/irrigation-api/models/section"
@@ -195,6 +196,74 @@ func ScanRowSection(s Scanner) (section.Section, error) {
 	sct.Name = name.String
 
 	return sct, nil
+}
+
+// ScanRowIntake is a function to scan a row to a intake.Intake
+func ScanRowIntake(s Scanner) (intake.Intake, error) {
+
+	ik := intake.Intake{}
+
+	var latitude, longitude sql.NullFloat64
+	var name sql.NullString
+
+	err := s.Scan(
+		&ik.ID,
+		&ik.IntakeNumber,
+		&name,
+		&latitude,
+		&longitude,
+		&ik.CreatedAt,
+		&ik.UpdatedAt,
+	)
+
+	if err != nil {
+		return ik, err
+	}
+
+	ik.Name = name.String
+	ik.Latitude = latitude.Float64
+	ik.Longitude = longitude.Float64
+
+	return ik, nil
+}
+
+// ScanRowIntakeResponse is a function to scan a row to a intake.IntakeResponse
+func ScanRowIntakeResponse(s Scanner) (intake.IntakeResponse, error) {
+
+	ik := intake.IntakeResponse{}
+
+	var latitude, longitude sql.NullFloat64
+	var name sql.NullString
+
+	var sectionId sql.NullInt64
+	var sectionNumber, sectionName sql.NullString
+
+	err := s.Scan(
+		&ik.ID,
+		&sectionId,
+		&sectionNumber,
+		&sectionName,
+		&ik.IntakeNumber,
+		&name,
+		&latitude,
+		&longitude,
+		&ik.CreatedAt,
+		&ik.UpdatedAt,
+	)
+
+	if err != nil {
+		return ik, err
+	}
+
+	ik.Name = name.String
+	ik.Latitude = latitude.Float64
+	ik.Longitude = longitude.Float64
+
+	ik.Section.ID = sectionId.Int64
+	ik.Section.SectionNumber = sectionNumber.String
+	ik.Section.Name = sectionName.String
+
+	return ik, nil
 }
 
 /*** helper function to control the null fields ***/
