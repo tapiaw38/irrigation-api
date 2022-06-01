@@ -1,0 +1,47 @@
+version: '3.8'
+
+# Define services
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: "database"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - fullstack
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+  web:
+    build: .
+    container_name: "irrigation-api"
+    environment:
+      # postgres
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      # api
+      - PORT=${PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      # AWS S3
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET=${AWS_BUCKET}
+    ports:
+      - ${PORT}:8000
+    depends_on:
+      - db
+    networks:
+      - fullstack
+
+volumes:
+  database_postgres:
+
+networks:
+  fullstack:
+    driver: bridge
