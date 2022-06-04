@@ -54,6 +54,7 @@ services:
     networks:
       - fullstack
 
+
 volumes:
   database_postgres:
 
