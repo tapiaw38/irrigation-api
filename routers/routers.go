@@ -61,3 +61,15 @@ func (sr *SectionRouter) SectionRoutes() *mux.Router {
 
 	return r
 }
+
+// IntakeRoutes is a function that returns a router for the intake routes
+func (ir *IntakeRouter) IntakeRoutes() *mux.Router {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/create", ir.CreateIntakesHandler).Methods("POST")
+	r.HandleFunc("/all", ir.GetIntakesHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", ir.UpdateIntakeHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", ir.DeleteIntakeHandler).Methods("DELETE")
+
+	return r
+}

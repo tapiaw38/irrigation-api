@@ -6,7 +6,6 @@ import "context"
 type Storage interface {
 	CreateIntakes(ctx context.Context, intakes []Intake) ([]Intake, error)
 	GetIntakes(ctx context.Context) ([]IntakeResponse, error)
-	GetIntakesByID(ctx context.Context, id string) (IntakeResponse, error)
 	UpdateIntake(ctx context.Context, id string, intake Intake) (IntakeResponse, error)
 	DeleteIntake(ctx context.Context, id string) (Intake, error)
 }
