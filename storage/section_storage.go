@@ -56,7 +56,8 @@ func (ss *SectionStorage) GetSections(ctx context.Context) ([]section.Section, e
 
 	q := `
 	SELECT id, section_number, name, created_at, updated_at
-		FROM sections;
+		FROM sections
+		ORDER BY section_number ASC;
 	`
 
 	rows, err := ss.Data.DB.QueryContext(ctx, q)
