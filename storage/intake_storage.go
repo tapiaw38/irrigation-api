@@ -137,10 +137,8 @@ func (is *IntakeStorage) DeleteIntake(ctx context.Context, id string) (intake.In
 
 	q := `
 	DELETE FROM intakes
-		WHERE id = $1;
-		RETURNING id, intakes.intake_number, intakes.name,
-			intakes.section, intakes.latitude, intakes.longitude,
-			intakes.created_at, intakes.updated_at;
+		WHERE id = $1
+		RETURNING id, intake_number, name, section, latitude, longitude, created_at, updated_at;
 	`
 
 	row := is.Data.DB.QueryRowContext(

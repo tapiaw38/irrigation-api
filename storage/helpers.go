@@ -210,6 +210,7 @@ func ScanRowIntake(s Scanner) (intake.Intake, error) {
 		&ik.ID,
 		&ik.IntakeNumber,
 		&name,
+		&ik.Section,
 		&latitude,
 		&longitude,
 		&ik.CreatedAt,
