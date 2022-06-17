@@ -68,6 +68,7 @@ func (ir *IntakeRouter) IntakeRoutes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/create", ir.CreateIntakesHandler).Methods("POST")
 	r.HandleFunc("/all", ir.GetIntakesHandler).Methods("GET")
+	r.HandleFunc("/{id}", ir.GetIntakeByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", ir.UpdateIntakeHandler).Methods("PUT")
 	r.HandleFunc("/delete/{id}", ir.DeleteIntakeHandler).Methods("DELETE")
 

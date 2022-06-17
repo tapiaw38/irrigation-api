@@ -54,6 +54,29 @@ func (ik *IntakeRouter) GetIntakesHandler(w http.ResponseWriter, r *http.Request
 	ResponseWithJson(w, response, http.StatusOK)
 }
 
+// GetIntakeByIDHandler handles the request to get a intake by id
+func (ik *IntakeRouter) GetIntakeByIDHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred when trying to get intake by id", 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	intake, err := ik.Storage.GetIntakeByID(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get intakes in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", intake)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
 // UpdateIntakeHandler handles the request to get a intake by id
 func (ik *IntakeRouter) UpdateIntakeHandler(w http.ResponseWriter, r *http.Request) {
 

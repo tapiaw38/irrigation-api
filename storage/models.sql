@@ -82,3 +82,11 @@ CREATE TABLE IF NOT EXISTS intakes (
     REFERENCES sections(id)
     ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS intakes_productions (
+    intake_id BIGINT REFERENCES intakes(id)
+    ON DELETE CASCADE,
+    production_id BIGINT REFERENCES productions(id)
+    ON DELETE CASCADE,
+    CONSTRAINT pk_intakes_productions PRIMARY KEY (intake_id, production_id)
+);
