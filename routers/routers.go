@@ -71,6 +71,7 @@ func (ir *IntakeRouter) IntakeRoutes() *mux.Router {
 	r.HandleFunc("/{id}", ir.GetIntakeByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", ir.UpdateIntakeHandler).Methods("PUT")
 	r.HandleFunc("/delete/{id}", ir.DeleteIntakeHandler).Methods("DELETE")
+	r.HandleFunc("/production/{id}", ir.CreateIntakeProductionHandler).Methods("POST")
 
 	return r
 }

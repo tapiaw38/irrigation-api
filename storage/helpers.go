@@ -267,6 +267,23 @@ func ScanRowIntakeResponse(s Scanner) (intake.IntakeResponse, error) {
 	return ik, nil
 }
 
+// ScanRowIntakeProduction is a function to scan a row to a intake.IntakeProduction
+func ScanRowIntakeProduction(s Scanner) (intake.IntakeProduction, error) {
+
+	ip := intake.IntakeProduction{}
+
+	err := s.Scan(
+		&ip.IntakeID,
+		&ip.ProductionID,
+	)
+
+	if err != nil {
+		return ip, err
+	}
+
+	return ip, nil
+}
+
 /*** helper function to control the null fields ***/
 
 // StringToNull is a function to convert a string to a sql.NullString
