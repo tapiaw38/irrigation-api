@@ -11,6 +11,7 @@ type Production struct {
 	Name                  string  `json:"name,omitempty"`
 	ProductionType        string  `json:"production_type,omitempty"`
 	Area                  float64 `json:"area,omitempty"`
+	CultivatedArea        float64 `json:"cultivated_area,omitempty"`
 	Latitude              float64 `json:"latitude,omitempty"`
 	Longitude             float64 `json:"longitude,omitempty"`
 	Picture               string  `json:"picture,omitempty"`
@@ -29,6 +30,7 @@ type ProductionResponse struct {
 	Name                  string            `json:"name,omitempty"`
 	ProductionType        string            `json:"production_type,omitempty"`
 	Area                  float64           `json:"area,omitempty"`
+	CultivatedArea        float64           `json:"cultivated_area,omitempty"`
 	Latitude              float64           `json:"latitude,omitempty"`
 	Longitude             float64           `json:"longitude,omitempty"`
 	Picture               string            `json:"picture,omitempty"`

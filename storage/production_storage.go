@@ -18,9 +18,9 @@ func (pd *ProductionStorage) CreateProductions(ctx context.Context, productions 
 	q := `
 	INSERT INTO productions (
 		producer, lote_number, entry, name, production_type, area, 
-		latitude, longitude, picture, cadastral_registration, 
-		district, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		cultivated_area, latitude, longitude, picture, 
+		cadastral_registration, district, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id;
 	`
 
@@ -38,6 +38,7 @@ func (pd *ProductionStorage) CreateProductions(ctx context.Context, productions 
 			p.Name,
 			p.ProductionType,
 			p.Area,
+			p.CultivatedArea,
 			p.Latitude,
 			p.Longitude,
 			p.Picture,
@@ -70,8 +71,8 @@ func (pd *ProductionStorage) GetProductions(ctx context.Context) ([]production.P
 		producers.document_number, producers.birth_date, producers.phone_number, 
 		producers.address,
 		productions.lote_number, productions.entry, productions.name, 
-		productions.production_type, productions.area, productions.latitude, 
-		productions.longitude, productions.picture,
+		productions.production_type, productions.area, productions.cultivated_area, 
+		productions.latitude, productions.longitude, productions.picture,
 		productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
@@ -111,8 +112,8 @@ func (pd *ProductionStorage) GetProductionsByID(ctx context.Context, id string) 
 		producers.document_number, producers.birth_date, producers.phone_number,
 		producers.address,
 		productions.lote_number, productions.entry, productions.name,
-		productions.production_type, productions.area, productions.latitude,
-		productions.longitude, productions.picture,
+		productions.production_type, productions.area, productions.cultivated_area, 
+		productions.latitude, productions.longitude, productions.picture,
 		productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
@@ -140,21 +141,22 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 		UPDATE productions
 		SET producer = $1, lote_number = $2, entry = $3, 
 			name = $4, production_type = $5, area = $6, 
-			latitude = $7, longitude = $8, picture = $9,
-			cadastral_registration = $10, district = $11,
-			updated_at = $12
-		WHERE id = $13
+			cultivated_area = $7, latitude = $8, longitude = $9, 
+			picture = $10, cadastral_registration = $11, 
+			district = $12, updated_at = $13
+		WHERE id = $14
 		RETURNING id, producer, lote_number, entry, name, 
-			production_type, area, latitude, longitude, picture, 
-			cadastral_registration, district, created_at, updated_at
+			production_type, area, cultivated_area, latitude, longitude, 
+			picture, cadastral_registration, district, created_at, updated_at
 	)
 	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
 		producers.document_number, producers.birth_date, producers.phone_number, 
 		producers.address,
 		updated.lote_number, updated.entry, updated.name, 
-		updated.production_type, updated.area, updated.latitude, 
-		updated.longitude, updated.picture, updated.cadastral_registration,
-		updated.district, updated.created_at, updated.updated_at
+		updated.production_type, updated.area, updated.cultivated_area, 
+		updated.latitude, updated.longitude, updated.picture, 
+		updated.cadastral_registration, updated.district, 
+		updated.created_at, updated.updated_at
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
 `
@@ -167,6 +169,7 @@ func (pd *ProductionStorage) UpdateProduction(ctx context.Context, id string, p 
 		p.Name,
 		p.ProductionType,
 		p.Area,
+		p.CultivatedArea,
 		p.Latitude,
 		p.Longitude,
 		p.Picture,
@@ -193,8 +196,8 @@ func (pd *ProductionStorage) DeleteProduction(ctx context.Context, id string) (p
 	DELETE FROM productions
 		WHERE id = $1
 		RETURNING id, producer, lote_number, entry, name,
-			production_type, area, latitude, longitude, picture,
-			cadastral_registration, district, created_at, updated_at;
+			production_type, area, cultivated_area, latitude, longitude, 
+			picture, cadastral_registration, district, created_at, updated_at;
 	`
 
 	row := pd.Data.DB.QueryRowContext(ctx, q, id)

@@ -91,8 +91,8 @@ func (is *IntakeStorage) GetIntakes(ctx context.Context) ([]intake.IntakeRespons
 			producers.address,
 			productions.lote_number, productions.entry, 
 			productions.name, productions.production_type, productions.area, 
-			productions.latitude, productions.longitude, productions.picture,
-			productions.cadastral_registration, productions.district,
+			productions.cultivated_area, productions.latitude, productions.longitude, 
+			productions.picture, productions.cadastral_registration, productions.district,
 			productions.created_at, productions.updated_at
 			FROM productions
 			LEFT JOIN producers ON productions.producer = producers.id
@@ -155,8 +155,8 @@ func (is *IntakeStorage) GetIntakeByID(ctx context.Context, id string) (intake.I
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.latitude, productions.longitude, productions.picture,
-		productions.cadastral_registration, productions.district,
+		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.picture, productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
@@ -307,8 +307,8 @@ func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID st
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.latitude, productions.longitude, productions.picture,
-		productions.cadastral_registration, productions.district,
+		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.picture, productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
@@ -393,8 +393,8 @@ func (is *IntakeStorage) DeleteIntakeProduction(ctx context.Context, intakeID st
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.latitude, productions.longitude, productions.picture,
-		productions.cadastral_registration, productions.district,
+		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.picture, productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id

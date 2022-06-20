@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS productions (
     name VARCHAR(255),
     production_type VARCHAR(255),
     area DECIMAL(10,2),
+    cultivated_area DECIMAL(10,2),
     latitude DECIMAL(10,8) NOT NULL,
     longitude DECIMAL(11,8) NOT NULL,
     picture VARCHAR(255),

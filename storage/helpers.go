@@ -82,6 +82,7 @@ func ScanRowProduction(s Scanner) (production.Production, error) {
 	pd := production.Production{}
 
 	var latitude, longitude sql.NullFloat64
+	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
 
 	err := s.Scan(
@@ -91,7 +92,8 @@ func ScanRowProduction(s Scanner) (production.Production, error) {
 		&entry,
 		&pd.Name,
 		&pd.ProductionType,
-		&pd.Area,
+		&area,
+		&cultivatedArea,
 		&latitude,
 		&longitude,
 		&picture,
@@ -110,6 +112,8 @@ func ScanRowProduction(s Scanner) (production.Production, error) {
 	pd.Picture = picture.String
 	pd.CadastralRegistration = cadastralRegistration.String
 	pd.District = district.String
+	pd.Area = area.Float64
+	pd.CultivatedArea = cultivatedArea.Float64
 	pd.Latitude = latitude.Float64
 	pd.Longitude = longitude.Float64
 
@@ -121,6 +125,7 @@ func ScanRowProductionResponse(s Scanner) (production.ProductionResponse, error)
 	pdcs := production.ProductionResponse{}
 
 	var latitude, longitude sql.NullFloat64
+	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
 
 	var producerId sql.NullInt64
@@ -141,7 +146,8 @@ func ScanRowProductionResponse(s Scanner) (production.ProductionResponse, error)
 		&entry,
 		&pdcs.Name,
 		&pdcs.ProductionType,
-		&pdcs.Area,
+		&area,
+		&cultivatedArea,
 		&latitude,
 		&longitude,
 		&picture,
@@ -160,6 +166,8 @@ func ScanRowProductionResponse(s Scanner) (production.ProductionResponse, error)
 	pdcs.Picture = picture.String
 	pdcs.CadastralRegistration = cadastralRegistration.String
 	pdcs.District = district.String
+	pdcs.Area = area.Float64
+	pdcs.CultivatedArea = cultivatedArea.Float64
 	pdcs.Latitude = latitude.Float64
 	pdcs.Longitude = longitude.Float64
 
