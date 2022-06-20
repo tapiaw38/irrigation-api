@@ -45,6 +45,7 @@ func (pr *ProductionRouter) ProductionRoutes() *mux.Router {
 	r.HandleFunc("/{id}", pr.GetProductionByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", pr.UpdateProductionHandler).Methods("PUT")
 	r.HandleFunc("/delete/{id}", pr.DeleteProductionHandler).Methods("DELETE")
+	r.HandleFunc("/upload/picture/{id}", pr.UploadPictureHandler).Methods("PUT")
 
 	return r
 }

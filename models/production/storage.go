@@ -8,5 +8,6 @@ type Storage interface {
 	GetProductions(ctx context.Context) ([]ProductionResponse, error)
 	GetProductionsByID(ctx context.Context, id string) (ProductionResponse, error)
 	UpdateProduction(ctx context.Context, id string, production Production) (ProductionResponse, error)
+	PartialUpdateProduction(ctx context.Context, id string, production Production) (ProductionResponse, error)
 	DeleteProduction(ctx context.Context, id string) (Production, error)
 }

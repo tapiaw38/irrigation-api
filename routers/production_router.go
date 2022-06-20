@@ -2,9 +2,12 @@ package routers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/tapiaw38/irrigation-api/libs"
 	"github.com/tapiaw38/irrigation-api/models/production"
 )
 
@@ -132,4 +135,64 @@ func (pd *ProductionRouter) DeleteProductionHandler(w http.ResponseWriter, r *ht
 
 	response := NewResponse(Message, "ok", pds)
 	ResponseWithJson(w, response, http.StatusOK)
+}
+
+func (pd *ProductionRouter) UploadPictureHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+		return
+	}
+
+	maxSize := int64(1024 * 1024 * 5) // 5MB
+
+	err := r.ParseMultipartForm(maxSize)
+
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Image too large. Max Size: %v", maxSize)
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("picture")
+
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Could not get uploaded file")
+		return
+	}
+
+	defer file.Close()
+
+	// create an AWS session which can be
+	// reused if we're uploading many files
+	libs.S3.NewSession()
+
+	fileName, err := libs.S3.UploadFileToS3(file, fileHeader, id)
+
+	if err != nil {
+		fmt.Fprintf(w, "Could not upload file error"+err.Error(), 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	fileUrl := libs.S3.GenerateUrl(fileName)
+
+	var p production.Production
+
+	p.Picture = fileUrl
+
+	user, err := pd.Storage.PartialUpdateProduction(ctx, id, p)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", user)
+	ResponseWithJson(w, response, http.StatusOK)
+
 }

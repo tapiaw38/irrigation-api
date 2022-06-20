@@ -221,21 +221,21 @@ func (ur *UserStorage) PartialUpdateUser(ctx context.Context, id string, u user.
 	q := `
 	UPDATE users
 		SET 
-		first_name = CASE WHEN $1 = '' THEN first_name ELSE $1 END, 
-		last_name = CASE WHEN $2 = '' THEN last_name ELSE $2 END, 
-		email = CASE WHEN $3 = '' THEN email ELSE $3 END,
-		picture = CASE WHEN $4 = '' THEN picture ELSE $4 END,
-		phone_number = CASE WHEN $5 = '' THEN phone_number ELSE $5 END,
-		address = CASE WHEN $6 = '' THEN address ELSE $6 END,
-		is_active = 
-			CASE 
-				WHEN $7 = TRUE AND is_active = FALSE THEN TRUE 
-				WHEN $7 = FALSE AND is_active = TRUE THEN FALSE
-				WHEN $7 = NULL THEN is_active
-				ELSE is_active
-			END,
-		is_admin = $8,
-		updated_at = $9
+			first_name = CASE WHEN $1 = '' THEN first_name ELSE $1 END, 
+			last_name = CASE WHEN $2 = '' THEN last_name ELSE $2 END, 
+			email = CASE WHEN $3 = '' THEN email ELSE $3 END,
+			picture = CASE WHEN $4 = '' THEN picture ELSE $4 END,
+			phone_number = CASE WHEN $5 = '' THEN phone_number ELSE $5 END,
+			address = CASE WHEN $6 = '' THEN address ELSE $6 END,
+			is_active = 
+				CASE 
+					WHEN $7 = TRUE AND is_active = FALSE THEN TRUE 
+					WHEN $7 = FALSE AND is_active = TRUE THEN FALSE
+					WHEN $7 = NULL THEN is_active
+					ELSE is_active
+				END,
+			is_admin = $8,
+			updated_at = $9
 		WHERE id = $10
 		RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
 	`
