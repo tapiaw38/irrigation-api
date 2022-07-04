@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/aws/aws-sdk-go v1.44.22
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.5
