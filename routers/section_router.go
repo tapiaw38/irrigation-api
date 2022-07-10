@@ -57,8 +57,6 @@ func (ss *SectionRouter) GetSectionsHandler(w http.ResponseWriter, r *http.Reque
 // GetSectionByIDHandler is a function to get a section by id
 func (ss *SectionRouter) GetSectionByIDHandler(w http.ResponseWriter, r *http.Request) {
 
-	var section section.Section
-
 	id := mux.Vars(r)["id"]
 
 	if id == "" {
@@ -66,18 +64,9 @@ func (ss *SectionRouter) GetSectionByIDHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&section)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to enter a section "+err.Error(), 400)
-		return
-	}
-
-	defer r.Body.Close()
-
 	ctx := r.Context()
 
-	section, err = ss.Storage.GetSectionByID(ctx, id)
+	section, err := ss.Storage.GetSectionByID(ctx, id)
 
 	if err != nil {
 		http.Error(w, "An error occurred when trying to get section in database "+err.Error(), 400)
