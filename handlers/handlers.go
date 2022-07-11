@@ -46,12 +46,19 @@ func HandlerServer() {
 		},
 	}
 
+	turns := &routers.TurnRouter{
+		Storage: &storage.TurnStorage{
+			Data: storage.NewConnection(),
+		},
+	}
+
 	// Mount the routers
 	mount(router, "/users", users.UserRoutes())
 	mount(router, "/producers", producers.ProducerRoutes())
 	mount(router, "/productions", productions.ProductionRoutes())
 	mount(router, "/sections", sections.SectionRoutes())
 	mount(router, "/intakes", intakes.IntakeRoutes())
+	mount(router, "/turns", turns.TurnRoutes())
 
 	// Mount the middleware
 	router.Use(middlewares.MiddlewareLog)

@@ -8,6 +8,7 @@ import (
 	"github.com/tapiaw38/irrigation-api/models/producer"
 	"github.com/tapiaw38/irrigation-api/models/production"
 	"github.com/tapiaw38/irrigation-api/models/section"
+	"github.com/tapiaw38/irrigation-api/models/turn"
 	"github.com/tapiaw38/irrigation-api/models/user"
 )
 
@@ -290,6 +291,25 @@ func ScanRowIntakeProduction(s Scanner) (intake.IntakeProduction, error) {
 	}
 
 	return ip, nil
+}
+
+func ScanRowTurn(s Scanner) (turn.Turn, error) {
+
+	t := turn.Turn{}
+
+	err := s.Scan(
+		&t.ID,
+		&t.StartDate,
+		&t.EndDate,
+		&t.CreatedAt,
+		&t.UpdatedAt,
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	return t, nil
 }
 
 /*** helper function to control the null fields ***/
