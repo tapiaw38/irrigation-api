@@ -51,7 +51,7 @@ func MiddlewareAuth(next http.Handler) http.Handler {
 
 			if err != nil {
 				log.Printf("Invalid token. Error: %s\n", err)
-				w.WriteHeader(http.StatusUnauthorized)
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 
