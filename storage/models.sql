@@ -89,12 +89,14 @@ CREATE TABLE IF NOT EXISTS intakes_productions (
     ON DELETE CASCADE,
     production_id BIGINT REFERENCES productions(id)
     ON DELETE CASCADE,
+    watering_order INTEGER UNIQUE,
     CONSTRAINT pk_intakes_productions PRIMARY KEY (intake_id, production_id)
 );
 
 CREATE TABLE IF NOT EXISTS turns (
     id BIGSERIAL NOT NULL,
     start_date TIMESTAMP NOT NULL,
+    turn_hours DECIMAL(10,2) NOT NULL,
     end_date TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL,
@@ -106,7 +108,5 @@ CREATE TABLE IF NOT EXISTS turns_productions (
     ON DELETE CASCADE,
     production_id BIGINT REFERENCES productions(id)
     ON DELETE CASCADE,
-    turn_number INTEGER UNIQUE NOT NULL,
-    turn_hours DECIMAL(10,2) NOT NULL,
     CONSTRAINT pk_turns_productions PRIMARY KEY (turn_id, production_id)
 );

@@ -8,16 +8,15 @@ import (
 func (ur *UserRouter) UserRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", ur.CreateUserHandler).Methods("POST")
+	//router := r.PathPrefix("/").Subrouter()
+	r.HandleFunc("/register", ur.CreateUserHandler).Methods("POST")
 	r.HandleFunc("/login", ur.LoginHandler).Methods("POST")
-	router := r.PathPrefix("/").Subrouter()
-	//router.Use(middlewares.MiddlewareAuth)
-	router.HandleFunc("/all", ur.GetUsersHandler).Methods("GET")
-	router.HandleFunc("/{id}", ur.GetUserByIdHandler).Methods("GET")
-	router.HandleFunc("/username/{username}", ur.GetUserByUsernameHandler).Methods("GET")
-	router.HandleFunc("/update/{id}", ur.UpdateUserHandler).Methods("PUT")
-	router.HandleFunc("/partial/{id}", ur.PartialUpdateUserHandler).Methods("PUT")
-	router.HandleFunc("/update/avatar/{id}", ur.UploadAvatarHandler).Methods("PUT")
+	r.HandleFunc("/all", ur.GetUsersHandler).Methods("GET")
+	r.HandleFunc("/{id}", ur.GetUserByIdHandler).Methods("GET")
+	r.HandleFunc("/username/{username}", ur.GetUserByUsernameHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", ur.UpdateUserHandler).Methods("PUT")
+	r.HandleFunc("/partial/{id}", ur.PartialUpdateUserHandler).Methods("PUT")
+	r.HandleFunc("/update/avatar/{id}", ur.UploadAvatarHandler).Methods("PUT")
 
 	return r
 }
