@@ -93,7 +93,7 @@ func (is *IntakeStorage) GetIntakes(ctx context.Context) ([]intake.IntakeRespons
 			productions.name, productions.production_type, productions.area, 
 			productions.cultivated_area, productions.latitude, productions.longitude, 
 			productions.picture, productions.cadastral_registration, productions.district,
-			productions.created_at, productions.updated_at
+			intakes_productions.watering_order, productions.created_at, productions.updated_at
 			FROM productions
 			LEFT JOIN producers ON productions.producer = producers.id
 			LEFT JOIN intakes_productions
@@ -112,7 +112,7 @@ func (is *IntakeStorage) GetIntakes(ctx context.Context) ([]intake.IntakeRespons
 		}
 
 		for rows.Next() {
-			pds, err := ScanRowProductionResponse(rows)
+			pds, err := ScanRowProductionIntakeResponse(rows)
 
 			if err != nil {
 				log.Println(err)
@@ -157,12 +157,13 @@ func (is *IntakeStorage) GetIntakeByID(ctx context.Context, id string) (intake.I
 		productions.name, productions.production_type, productions.area, 
 		productions.cultivated_area, productions.latitude, productions.longitude, 
 		productions.picture, productions.cadastral_registration, productions.district,
-		productions.created_at, productions.updated_at
+		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
 		LEFT JOIN intakes_productions
 		ON intakes_productions.production_id=productions.id
 		WHERE intakes_productions.intake_id=$1
+		ORDER BY intakes_productions.watering_order ASC;
 	`
 
 	rows, err := is.Data.DB.QueryContext(
@@ -176,7 +177,7 @@ func (is *IntakeStorage) GetIntakeByID(ctx context.Context, id string) (intake.I
 	}
 
 	for rows.Next() {
-		pds, err := ScanRowProductionResponse(rows)
+		pds, err := ScanRowProductionIntakeResponse(rows)
 
 		if err != nil {
 			log.Println(err)
@@ -256,20 +257,21 @@ func (is *IntakeStorage) DeleteIntake(ctx context.Context, id string) (intake.In
 }
 
 // CreateIntakeProduction creates a intake production many-to-many relationship in the database.
-func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID string, productionID string) (intake.IntakeResponse, error) {
+func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID string, intakeProduction intake.IntakeProduction) (intake.IntakeResponse, error) {
 
 	var iks intake.IntakeResponse
 
 	q := `
-	INSERT INTO intakes_productions (intake_id, production_id)
-		VALUES ($1, $2)
-		RETURNING intake_id, production_id;
+	INSERT INTO intakes_productions (intake_id, production_id, watering_order)
+		VALUES ($1, $2, $3)
+		RETURNING intake_id, production_id, watering_order;
 	`
 
 	row := is.Data.DB.QueryRowContext(
 		ctx, q,
 		intakeID,
-		productionID,
+		intakeProduction.ProductionID,
+		intakeProduction.WateringOrder,
 	)
 
 	ip, err := ScanRowIntakeProduction(row)
@@ -309,12 +311,13 @@ func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID st
 		productions.name, productions.production_type, productions.area, 
 		productions.cultivated_area, productions.latitude, productions.longitude, 
 		productions.picture, productions.cadastral_registration, productions.district,
-		productions.created_at, productions.updated_at
+		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
 		LEFT JOIN intakes_productions
 		ON intakes_productions.production_id=productions.id
 		WHERE intakes_productions.intake_id=$1
+		ORDER BY intakes_productions.watering_order ASC;
 	`
 
 	rows, err := is.Data.DB.QueryContext(
@@ -328,7 +331,96 @@ func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID st
 	}
 
 	for rows.Next() {
-		pds, err := ScanRowProductionResponse(rows)
+		pds, err := ScanRowProductionIntakeResponse(rows)
+
+		if err != nil {
+			log.Println(err)
+			return iks, err
+		}
+
+		iks.Productions = append(iks.Productions, pds)
+	}
+
+	return iks, nil
+}
+
+// UpdateIntakeProduction updates an intake production many-to-many relationship in the database.
+func (is *IntakeStorage) UpdateIntakeProduction(ctx context.Context, intakeID string, intakeProduction intake.IntakeProduction) (intake.IntakeResponse, error) {
+
+	var iks intake.IntakeResponse
+
+	q := `
+	UPDATE intakes_productions
+		SET watering_order = $1
+		WHERE intake_id = $2 AND production_id = $3
+		RETURNING intake_id, production_id, watering_order;
+	`
+
+	row := is.Data.DB.QueryRowContext(
+		ctx, q,
+		intakeProduction.WateringOrder,
+		intakeID,
+		intakeProduction.ProductionID,
+	)
+
+	ip, err := ScanRowIntakeProduction(row)
+
+	if err != nil {
+		log.Println(err)
+		return iks, err
+	}
+
+	q = `
+	SELECT intakes.id, sections.id, sections.section_number,
+			sections.name,
+			intakes.intake_number, intakes.name, intakes.latitude, 
+			intakes.longitude, intakes.created_at, intakes.updated_at
+		FROM intakes
+		LEFT JOIN sections ON intakes.section = sections.id
+		WHERE intakes.id = $1;
+	`
+
+	row = is.Data.DB.QueryRowContext(
+		ctx, q,
+		ip.IntakeID,
+	)
+
+	iks, err = ScanRowIntakeResponse(row)
+
+	if err != nil {
+		log.Println(err)
+		return iks, err
+	}
+
+	q = `
+	SELECT productions.id,  producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
+		producers.address,
+		productions.lote_number, productions.entry, 
+		productions.name, productions.production_type, productions.area, 
+		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.picture, productions.cadastral_registration, productions.district,
+		intakes_productions.watering_order, productions.created_at, productions.updated_at
+		FROM productions
+		LEFT JOIN producers ON productions.producer = producers.id
+		LEFT JOIN intakes_productions
+		ON intakes_productions.production_id=productions.id
+		WHERE intakes_productions.intake_id=$1
+		ORDER BY intakes_productions.watering_order ASC;
+	`
+
+	rows, err := is.Data.DB.QueryContext(
+		ctx, q,
+		iks.ID,
+	)
+
+	if err != nil {
+		log.Println(err)
+		return iks, err
+	}
+
+	for rows.Next() {
+		pds, err := ScanRowProductionIntakeResponse(rows)
 
 		if err != nil {
 			log.Println(err)
@@ -342,20 +434,20 @@ func (is *IntakeStorage) CreateIntakeProduction(ctx context.Context, intakeID st
 }
 
 // DeleteIntakeProduction deletes a intake production many-to-many relationship in the database.
-func (is *IntakeStorage) DeleteIntakeProduction(ctx context.Context, intakeID string, productionID string) (intake.IntakeResponse, error) {
+func (is *IntakeStorage) DeleteIntakeProduction(ctx context.Context, intakeID string, intakeProduction intake.IntakeProduction) (intake.IntakeResponse, error) {
 
 	var iks intake.IntakeResponse
 
 	q := `
 	DELETE FROM intakes_productions
 		WHERE intake_id = $1 AND production_id = $2
-		RETURNING intake_id, production_id;
+		RETURNING intake_id, production_id, watering_order;
 	`
 
 	row := is.Data.DB.QueryRowContext(
 		ctx, q,
 		intakeID,
-		productionID,
+		intakeProduction.ProductionID,
 	)
 
 	ip, err := ScanRowIntakeProduction(row)
@@ -395,12 +487,13 @@ func (is *IntakeStorage) DeleteIntakeProduction(ctx context.Context, intakeID st
 		productions.name, productions.production_type, productions.area, 
 		productions.cultivated_area, productions.latitude, productions.longitude, 
 		productions.picture, productions.cadastral_registration, productions.district,
-		productions.created_at, productions.updated_at
+		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
 		LEFT JOIN intakes_productions
 		ON intakes_productions.production_id=productions.id
 		WHERE intakes_productions.intake_id=$1
+		ORDER BY intakes_productions.watering_order ASC;
 	`
 
 	rows, err := is.Data.DB.QueryContext(
@@ -414,7 +507,7 @@ func (is *IntakeStorage) DeleteIntakeProduction(ctx context.Context, intakeID st
 	}
 
 	for rows.Next() {
-		pds, err := ScanRowProductionResponse(rows)
+		pds, err := ScanRowProductionIntakeResponse(rows)
 
 		if err != nil {
 			log.Println(err)

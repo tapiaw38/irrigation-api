@@ -157,7 +157,41 @@ func (ik *IntakeRouter) CreateIntakeProductionHandler(w http.ResponseWriter, r *
 
 	ctx := r.Context()
 
-	intake, err := ik.Storage.CreateIntakeProduction(ctx, id, intakeProduction.ProductionID)
+	intake, err := ik.Storage.CreateIntakeProduction(ctx, id, intakeProduction)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get intakes in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", intake)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// UpdateIntakeProductionHandler handles the request to get a intake by id
+func (ik *IntakeRouter) UpdateIntakeProductionHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred when trying to get intakes in database", 400)
+		return
+	}
+
+	var intakeProduction intake.IntakeProduction
+
+	err := json.NewDecoder(r.Body).Decode(&intakeProduction)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get intakes in database "+err.Error(), 400)
+		return
+	}
+
+	defer r.Body.Close()
+
+	ctx := r.Context()
+
+	intake, err := ik.Storage.UpdateIntakeProduction(ctx, id, intakeProduction)
 
 	if err != nil {
 		http.Error(w, "An error occurred when trying to get intakes in database "+err.Error(), 400)
@@ -191,7 +225,7 @@ func (ik *IntakeRouter) DeleteIntakeProductionHandler(w http.ResponseWriter, r *
 
 	ctx := r.Context()
 
-	intake, err := ik.Storage.DeleteIntakeProduction(ctx, id, intakeProduction.ProductionID)
+	intake, err := ik.Storage.DeleteIntakeProduction(ctx, id, intakeProduction)
 
 	if err != nil {
 		http.Error(w, "An error occurred when trying to get intakes in database "+err.Error(), 400)

@@ -19,19 +19,20 @@ type Intake struct {
 
 // IntakeResponse is the struct that holds the intake data
 type IntakeResponse struct {
-	ID           int64                           `json:"id,omitempty"`
-	Section      section.Section                 `json:"section,omitempty"`
-	IntakeNumber string                          `json:"intake_number,omitempty"`
-	Name         string                          `json:"name,omitempty"`
-	Latitude     float64                         `json:"latitude,omitempty"`
-	Longitude    float64                         `json:"longitude,omitempty"`
-	Productions  []production.ProductionResponse `json:"productions,omitempty"`
-	CreatedAt    string                          `json:"created_at,omitempty"`
-	UpdatedAt    string                          `json:"updated_at,omitempty"`
+	ID           int64                                 `json:"id,omitempty"`
+	Section      section.Section                       `json:"section,omitempty"`
+	IntakeNumber string                                `json:"intake_number,omitempty"`
+	Name         string                                `json:"name,omitempty"`
+	Latitude     float64                               `json:"latitude,omitempty"`
+	Longitude    float64                               `json:"longitude,omitempty"`
+	Productions  []production.ProductionIntakeResponse `json:"productions,omitempty"`
+	CreatedAt    string                                `json:"created_at,omitempty"`
+	UpdatedAt    string                                `json:"updated_at,omitempty"`
 }
 
 // IntakeProduction is the struct that holds the intake production data
 type IntakeProduction struct {
-	IntakeID     string `json:"intake_id,omitempty"`
-	ProductionID string `json:"production_id,omitempty"`
+	IntakeID      string `json:"intake_id,omitempty"`
+	ProductionID  string `json:"production_id,omitempty"`
+	WateringOrder int64  `json:"watering_order,omitempty"`
 }

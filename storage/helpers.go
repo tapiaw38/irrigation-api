@@ -281,16 +281,87 @@ func ScanRowIntakeProduction(s Scanner) (intake.IntakeProduction, error) {
 
 	ip := intake.IntakeProduction{}
 
+	var wateringOrder sql.NullInt64
+
 	err := s.Scan(
 		&ip.IntakeID,
 		&ip.ProductionID,
+		&wateringOrder,
 	)
 
 	if err != nil {
 		return ip, err
 	}
 
+	ip.WateringOrder = wateringOrder.Int64
+
 	return ip, nil
+}
+
+// ScanRowIntakeProductionResponse is a function to scan a row to a intake.IntakeProductionResponse
+func ScanRowProductionIntakeResponse(s Scanner) (production.ProductionIntakeResponse, error) {
+	pir := production.ProductionIntakeResponse{}
+
+	var latitude, longitude sql.NullFloat64
+	var area, cultivatedArea sql.NullFloat64
+	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+
+	var producerId sql.NullInt64
+	var producerFirstName, producerLastName sql.NullString
+	var producerDocumentNumber, producerBirthDate sql.NullString
+	var producerPhoneNumber, producerAddress sql.NullString
+
+	var wateringOrder sql.NullInt64
+
+	err := s.Scan(
+		&pir.ID,
+		&producerId,
+		&producerFirstName,
+		&producerLastName,
+		&producerDocumentNumber,
+		&producerBirthDate,
+		&producerPhoneNumber,
+		&producerAddress,
+		&loteNumber,
+		&entry,
+		&pir.Name,
+		&pir.ProductionType,
+		&area,
+		&cultivatedArea,
+		&latitude,
+		&longitude,
+		&picture,
+		&cadastralRegistration,
+		&district,
+		&wateringOrder,
+		&pir.CreatedAt,
+		&pir.UpdatedAt,
+	)
+
+	if err != nil {
+		return pir, err
+	}
+
+	pir.LoteNumber = loteNumber.String
+	pir.Entry = entry.String
+	pir.Picture = picture.String
+	pir.CadastralRegistration = cadastralRegistration.String
+	pir.District = district.String
+	pir.Area = area.Float64
+	pir.CultivatedArea = cultivatedArea.Float64
+	pir.WateringOrder = wateringOrder.Int64
+	pir.Latitude = latitude.Float64
+	pir.Longitude = longitude.Float64
+
+	pir.Producer.ID = producerId.Int64
+	pir.Producer.FirstName = producerFirstName.String
+	pir.Producer.LastName = producerLastName.String
+	pir.Producer.DocumentNumber = producerDocumentNumber.String
+	pir.Producer.BirthDate = producerBirthDate.String
+	pir.Producer.PhoneNumber = producerPhoneNumber.String
+	pir.Producer.Address = producerAddress.String
+
+	return pir, nil
 }
 
 func ScanRowTurn(s Scanner) (turn.Turn, error) {

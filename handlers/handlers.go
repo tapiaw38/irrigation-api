@@ -62,7 +62,7 @@ func HandlerServer() {
 
 	// Mount the middleware
 	router.Use(middlewares.MiddlewareLog)
-	router.Use(middlewares.MiddlewareAuth)
+	//router.Use(middlewares.MiddlewareAuth)
 
 	handler := cors.AllowAll().Handler(router)
 

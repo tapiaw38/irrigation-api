@@ -39,3 +39,8 @@ type ProductionResponse struct {
 	CreatedAt             string            `json:"created_at,omitempty"`
 	UpdatedAt             string            `json:"updated_at,omitempty"`
 }
+
+type ProductionIntakeResponse struct {
+	ProductionResponse
+	WateringOrder int64 `json:"watering_order,omitempty"`
+}

@@ -9,6 +9,7 @@ type Storage interface {
 	GetIntakeByID(ctx context.Context, id string) (IntakeResponse, error)
 	UpdateIntake(ctx context.Context, id string, intake Intake) (IntakeResponse, error)
 	DeleteIntake(ctx context.Context, id string) (Intake, error)
-	CreateIntakeProduction(ctx context.Context, intakeID string, productionID string) (IntakeResponse, error)
-	DeleteIntakeProduction(ctx context.Context, intakeID string, productionID string) (IntakeResponse, error)
+	CreateIntakeProduction(ctx context.Context, intakeID string, intakeProduction IntakeProduction) (IntakeResponse, error)
+	UpdateIntakeProduction(ctx context.Context, intakeID string, intakeProduction IntakeProduction) (IntakeResponse, error)
+	DeleteIntakeProduction(ctx context.Context, intakeID string, intakeProduction IntakeProduction) (IntakeResponse, error)
 }
