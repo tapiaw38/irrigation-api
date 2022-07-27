@@ -40,7 +40,17 @@ type ProductionResponse struct {
 	UpdatedAt             string            `json:"updated_at,omitempty"`
 }
 
+// ProductionIntakeResponse is the struct that holds the production intake data
 type ProductionIntakeResponse struct {
 	ProductionResponse
 	WateringOrder int64 `json:"watering_order,omitempty"`
+}
+
+// ProductionTurnResponse is the struct that holds the production turn data
+type ProductionTurnResponse struct {
+	ProductionResponse
+	IntakeID      int64   `json:"intake_id,omitempty"`
+	IntakeNumber  string  `json:"intake_number,omitempty"`
+	WateringOrder int64   `json:"watering_order,omitempty"`
+	WateringHour  float64 `json:"watering_hour,omitempty"`
 }

@@ -37,3 +37,19 @@ func (tr *TurnRouter) CreateTurnHandler(w http.ResponseWriter, r *http.Request) 
 	response := NewResponse(Message, "ok", turn)
 	ResponseWithJson(w, response, http.StatusOK)
 }
+
+// GetTurnHandler is a function to get a Turn.
+func (tr *TurnRouter) GetTurnsHandler(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	turns, err := tr.Storage.GetTurns(ctx)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get turn in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", turns)
+	ResponseWithJson(w, response, http.StatusOK)
+}

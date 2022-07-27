@@ -52,14 +52,14 @@ func ScanRowUsers(s Scanner) (user.User, error) {
 func ScanRowProducers(s Scanner) (producer.Producer, error) {
 	p := producer.Producer{}
 
-	var lastName, phoneNumber, address sql.NullString
+	var lastName, documentNumber, phoneNumber, birthDate, address sql.NullString
 
 	err := s.Scan(
 		&p.ID,
 		&p.FirstName,
 		&lastName,
-		&p.DocumentNumber,
-		&p.BirthDate,
+		&documentNumber,
+		&birthDate,
 		&phoneNumber,
 		&address,
 		&p.IsActive,
@@ -72,6 +72,8 @@ func ScanRowProducers(s Scanner) (producer.Producer, error) {
 	}
 
 	p.LastName = lastName.String
+	p.DocumentNumber = documentNumber.String
+	p.BirthDate = birthDate.String
 	p.PhoneNumber = phoneNumber.String
 	p.Address = address.String
 
@@ -206,6 +208,46 @@ func ScanRowSection(s Scanner) (section.Section, error) {
 
 	return sct, nil
 }
+
+// ScanRowSectionResponse is a function to scan a row to a section.SectionResponse
+/*
+func ScanRowSectionResponse(s Scanner) (section.SectionResponse, error) {
+
+	sct := section.SectionResponse{}
+
+	var name sql.NullString
+
+	var intakeID sql.NullInt64
+	var intakeNumber, intakeName sql.NullString
+	var intakeLatitude, intakeLongitude sql.NullFloat64
+
+	err := s.Scan(
+		&sct.ID,
+		&sct.SectionNumber,
+		&name,
+		&intakeID,
+		&intakeNumber,
+		&intakeName,
+		&intakeLatitude,
+		&intakeLongitude,
+		&sct.CreatedAt,
+		&sct.UpdatedAt,
+	)
+
+	if err != nil {
+		return sct, err
+	}
+
+	sct.Name = name.String
+	sct.Intake.ID = intakeID.Int64
+	sct.Intake.Number = intakeNumber.String
+	sct.Intake.Name = intakeName.String
+	sct.Intake.Latitude = intakeLatitude.Float64
+	sct.Intake.Longitude = intakeLongitude.Float64
+
+	return sct, nil
+}
+*/
 
 // ScanRowIntake is a function to scan a row to a intake.Intake
 func ScanRowIntake(s Scanner) (intake.Intake, error) {
@@ -364,14 +406,19 @@ func ScanRowProductionIntakeResponse(s Scanner) (production.ProductionIntakeResp
 	return pir, nil
 }
 
+// ScamRowTurn is a function to scan a row to a turn.Turn
 func ScanRowTurn(s Scanner) (turn.Turn, error) {
 
 	t := turn.Turn{}
 
+	var turnHours sql.NullFloat64
+	var endDate sql.NullString
+
 	err := s.Scan(
 		&t.ID,
 		&t.StartDate,
-		&t.EndDate,
+		&turnHours,
+		&endDate,
 		&t.CreatedAt,
 		&t.UpdatedAt,
 	)
@@ -380,7 +427,110 @@ func ScanRowTurn(s Scanner) (turn.Turn, error) {
 		return t, err
 	}
 
+	t.TurnHours = turnHours.Float64
+	t.EndDate = endDate.String
+
 	return t, nil
+}
+
+// ScanRowTurnResponse is a function to scan a row to a turn.TurnResponse
+func ScanRowTurnResponse(s Scanner) (turn.TurnResponse, error) {
+
+	t := turn.TurnResponse{}
+
+	var turnHours sql.NullFloat64
+	var endDate sql.NullString
+
+	err := s.Scan(
+		&t.ID,
+		&t.StartDate,
+		&turnHours,
+		&endDate,
+		&t.CreatedAt,
+		&t.UpdatedAt,
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	t.TurnHours = turnHours.Float64
+	t.EndDate = endDate.String
+
+	return t, nil
+}
+
+// ScanRowIntakeProductionResponse is a function to scan a row to a intake.IntakeProductionResponse
+func ScanRowProductionTurnResponse(s Scanner) (production.ProductionTurnResponse, error) {
+	ptr := production.ProductionTurnResponse{}
+
+	var latitude, longitude sql.NullFloat64
+	var area, cultivatedArea sql.NullFloat64
+	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+
+	var producerId sql.NullInt64
+	var producerFirstName, producerLastName sql.NullString
+	var producerDocumentNumber, producerBirthDate sql.NullString
+	var producerPhoneNumber, producerAddress sql.NullString
+
+	var intakeId, wateringOrder sql.NullInt64
+	var intakeNumber sql.NullString
+
+	err := s.Scan(
+		&ptr.ID,
+		&producerId,
+		&producerFirstName,
+		&producerLastName,
+		&producerDocumentNumber,
+		&producerBirthDate,
+		&producerPhoneNumber,
+		&producerAddress,
+		&loteNumber,
+		&entry,
+		&ptr.Name,
+		&ptr.ProductionType,
+		&area,
+		&cultivatedArea,
+		&latitude,
+		&longitude,
+		&picture,
+		&cadastralRegistration,
+		&district,
+		&intakeId,
+		&intakeNumber,
+		&wateringOrder,
+		&ptr.CreatedAt,
+		&ptr.UpdatedAt,
+	)
+
+	if err != nil {
+		return ptr, err
+	}
+
+	ptr.LoteNumber = loteNumber.String
+	ptr.Entry = entry.String
+	ptr.Picture = picture.String
+	ptr.CadastralRegistration = cadastralRegistration.String
+	ptr.District = district.String
+	ptr.Area = area.Float64
+	ptr.CultivatedArea = cultivatedArea.Float64
+
+	ptr.IntakeID = intakeId.Int64
+	ptr.IntakeNumber = intakeNumber.String
+	ptr.WateringOrder = wateringOrder.Int64
+
+	ptr.Latitude = latitude.Float64
+	ptr.Longitude = longitude.Float64
+
+	ptr.Producer.ID = producerId.Int64
+	ptr.Producer.FirstName = producerFirstName.String
+	ptr.Producer.LastName = producerLastName.String
+	ptr.Producer.DocumentNumber = producerDocumentNumber.String
+	ptr.Producer.BirthDate = producerBirthDate.String
+	ptr.Producer.PhoneNumber = producerPhoneNumber.String
+	ptr.Producer.Address = producerAddress.String
+
+	return ptr, nil
 }
 
 /*** helper function to control the null fields ***/

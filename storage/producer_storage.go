@@ -30,11 +30,11 @@ func (ps *ProducerStorage) CreateProducers(ctx context.Context, producers []prod
 		row := ps.Data.DB.QueryRowContext(
 			ctx, q,
 			p.FirstName,
-			p.LastName,
-			p.DocumentNumber,
-			p.BirthDate,
-			p.PhoneNumber,
-			p.Address,
+			StringToNull(p.LastName),
+			StringToNull(p.DocumentNumber),
+			StringToNull(p.BirthDate),
+			StringToNull(p.PhoneNumber),
+			StringToNull(p.Address),
 			time.Now(),
 			time.Now(),
 		)
@@ -127,11 +127,11 @@ func (ps *ProducerStorage) UpdateProducer(ctx context.Context, id string, p prod
 	row := ps.Data.DB.QueryRowContext(
 		ctx, q,
 		p.FirstName,
-		p.LastName,
-		p.DocumentNumber,
-		p.BirthDate,
-		p.PhoneNumber,
-		p.Address,
+		StringToNull(p.LastName),
+		StringToNull(p.DocumentNumber),
+		StringToNull(p.BirthDate),
+		StringToNull(p.PhoneNumber),
+		StringToNull(p.Address),
 		time.Now(),
 		id,
 	)

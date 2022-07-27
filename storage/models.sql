@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS intakes_productions (
 CREATE TABLE IF NOT EXISTS turns (
     id BIGSERIAL NOT NULL,
     start_date TIMESTAMP NOT NULL,
-    turn_hours DECIMAL(10,2) NOT NULL,
+    turn_hours DECIMAL(10,2) NOT NULL DEFAULT 0,
     end_date TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL,
