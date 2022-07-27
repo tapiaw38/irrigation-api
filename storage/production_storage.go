@@ -33,17 +33,17 @@ func (pd *ProductionStorage) CreateProductions(ctx context.Context, productions 
 		row := pd.Data.DB.QueryRowContext(
 			ctx, q,
 			p.Producer,
-			p.LoteNumber,
-			p.Entry,
+			StringToNull(p.LoteNumber),
+			StringToNull(p.Entry),
 			p.Name,
 			p.ProductionType,
-			p.Area,
-			p.CultivatedArea,
-			p.Latitude,
-			p.Longitude,
-			p.Picture,
-			p.CadastralRegistration,
-			p.District,
+			FloatToNull(p.Area),
+			FloatToNull(p.CultivatedArea),
+			FloatToNull(p.Latitude),
+			FloatToNull(p.Longitude),
+			StringToNull(p.Picture),
+			StringToNull(p.CadastralRegistration),
+			StringToNull(p.District),
 			time.Now(),
 			time.Now(),
 		)
@@ -225,6 +225,8 @@ func (pd *ProductionStorage) PartialUpdateProduction(ctx context.Context, id str
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
 `
+	// send to picture in object form to frontend
+	picture := ""
 
 	row := pd.Data.DB.QueryRowContext(
 		ctx, q,
@@ -237,7 +239,7 @@ func (pd *ProductionStorage) PartialUpdateProduction(ctx context.Context, id str
 		p.CultivatedArea,
 		p.Latitude,
 		p.Longitude,
-		p.Picture,
+		picture,
 		p.CadastralRegistration,
 		p.District,
 		time.Now(),
