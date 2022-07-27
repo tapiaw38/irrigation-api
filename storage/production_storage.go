@@ -225,8 +225,6 @@ func (pd *ProductionStorage) PartialUpdateProduction(ctx context.Context, id str
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
 `
-	// send to picture in object form to frontend
-	picture := ""
 
 	row := pd.Data.DB.QueryRowContext(
 		ctx, q,
@@ -239,7 +237,7 @@ func (pd *ProductionStorage) PartialUpdateProduction(ctx context.Context, id str
 		p.CultivatedArea,
 		p.Latitude,
 		p.Longitude,
-		picture,
+		p.Picture,
 		p.CadastralRegistration,
 		p.District,
 		time.Now(),
