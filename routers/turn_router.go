@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/models/turn"
 )
 
@@ -51,5 +52,28 @@ func (tr *TurnRouter) GetTurnsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := NewResponse(Message, "ok", turns)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
+// GetTurnByIDHandler is a function to get a Turn by ID.
+func (tr *TurnRouter) GetTurnByIDHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred when trying to get turn in database", 400)
+		return
+	}
+
+	ctx := r.Context()
+
+	turn, err := tr.Storage.GetTurnByID(ctx, id)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to get turn in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", turn)
 	ResponseWithJson(w, response, http.StatusOK)
 }

@@ -117,6 +117,71 @@ func (ts *TurnStorage) GetTurns(ctx context.Context) ([]turn.TurnResponse, error
 	return turns, nil
 }
 
+// GetTurnByID returns a Turn by ID.
+func (ts *TurnStorage) GetTurnByID(ctx context.Context, id string) (turn.TurnResponse, error) {
+
+	q := `
+	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
+		FROM turns
+		WHERE id = $1;
+	`
+
+	row := ts.Data.DB.QueryRowContext(ctx, q, id)
+
+	turn, err := ScanRowTurnResponse(row)
+
+	if err != nil {
+		log.Println(err)
+		return turn, err
+	}
+
+	q = `
+	SELECT productions.id,  producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
+		producers.address,
+		productions.lote_number, productions.entry, 
+		productions.name, productions.production_type, productions.area, 
+		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.picture, productions.cadastral_registration, productions.district,
+		intakes.id, intakes.intake_number,
+		intakes_productions.watering_order,
+		productions.created_at, productions.updated_at
+		FROM productions
+		LEFT JOIN producers ON productions.producer = producers.id
+		LEFT JOIN intakes_productions
+		ON intakes_productions.production_id=productions.id
+		LEFT JOIN intakes ON intakes.id = intakes_productions.intake_id
+		LEFT JOIN turns_productions
+		ON turns_productions.production_id = productions.id
+		WHERE turns_productions.turn_id = $1
+		ORDER BY intakes_productions.intake_id ASC, intakes_productions.watering_order ASC;
+		`
+
+	rows, err := ts.Data.DB.QueryContext(
+		ctx, q,
+		id,
+	)
+
+	if err != nil {
+		log.Println(err)
+		return turn, err
+	}
+
+	for rows.Next() {
+		pds, err := ScanRowProductionTurnResponse(rows)
+
+		if err != nil {
+			log.Println(err)
+			return turn, err
+		}
+
+		pds.WateringHour = 1 * pds.Area
+		turn.Productions = append(turn.Productions, pds)
+	}
+
+	return turn, nil
+}
+
 // func (tp *TurnStorage) CreateTurnProduction(ctx context.Context, turnID int, turnProduction turn.TurnProduction) error {
 
 // 	q := `

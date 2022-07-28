@@ -84,7 +84,7 @@ func (tr *TurnRouter) TurnRoutes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/create", tr.CreateTurnHandler).Methods("POST")
 	r.HandleFunc("/all", tr.GetTurnsHandler).Methods("GET")
-	// r.HandleFunc("/{id}", tr.GetTurnByIDHandler).Methods("GET")
+	r.HandleFunc("/{id}", tr.GetTurnByIDHandler).Methods("GET")
 	// r.HandleFunc("/update/{id}", tr.UpdateTurnHandler).Methods("PUT")
 	// r.HandleFunc("/delete/{id}", tr.DeleteTurnHandler).Methods("DELETE")
 	// r.HandleFunc("/intake/{id}", tr.CreateTurnIntakeHandler).Methods("POST")

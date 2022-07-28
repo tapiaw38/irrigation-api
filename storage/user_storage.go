@@ -73,13 +73,25 @@ func (ur *UserStorage) CreateUser(ctx context.Context, u *user.User) (user.User,
 	}
 
 	row := ur.Data.DB.QueryRowContext(
-		ctx, q, u.FirstName, u.LastName, u.Username, u.Email,
-		u.Picture, u.PhoneNumber, u.Address, u.PasswordHash, u.IsActive, u.IsAdmin, time.Now(), time.Now(),
+		ctx, q,
+		u.FirstName,
+		StringToNull(u.LastName),
+		u.Username,
+		u.Email,
+		StringToNull(u.Picture),
+		StringToNull(u.PhoneNumber),
+		StringToNull(u.Address),
+		u.PasswordHash,
+		u.IsActive,
+		u.IsAdmin,
+		time.Now(),
+		time.Now(),
 	)
 
 	users, err := ScanRowUsers(row)
 
 	if err != nil {
+		log.Println(err)
 		return user.User{}, err
 	}
 
