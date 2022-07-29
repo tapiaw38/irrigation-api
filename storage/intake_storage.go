@@ -62,7 +62,8 @@ func (is *IntakeStorage) GetIntakes(ctx context.Context) ([]intake.IntakeRespons
 			intakes.intake_number, intakes.name, intakes.latitude, 
 			intakes.longitude, intakes.created_at, intakes.updated_at
 		FROM intakes
-		LEFT JOIN sections ON intakes.section = sections.id;
+		LEFT JOIN sections ON intakes.section = sections.id
+		ORDER BY intakes.intake_number ASC;
 	`
 
 	rows, err := is.Data.DB.QueryContext(ctx, q)

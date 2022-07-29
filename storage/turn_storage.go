@@ -45,7 +45,8 @@ func (ts *TurnStorage) GetTurns(ctx context.Context) ([]turn.TurnResponse, error
 
 	q := `
 	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
-		FROM turns;
+		FROM turns
+		ORDER BY start_date DESC;
 	`
 
 	rows, err := ts.Data.DB.QueryContext(ctx, q)
