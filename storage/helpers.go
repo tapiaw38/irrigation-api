@@ -533,6 +533,23 @@ func ScanRowProductionTurnResponse(s Scanner) (production.ProductionTurnResponse
 	return ptr, nil
 }
 
+// ScanRowTurnProduction is a function to scan a row to a turn.TurnProduction
+func ScanRowTurnProduction(s Scanner) (turn.TurnProduction, error) {
+
+	tp := turn.TurnProduction{}
+
+	err := s.Scan(
+		&tp.TurnID,
+		&tp.ProductionID,
+	)
+
+	if err != nil {
+		return tp, err
+	}
+
+	return tp, nil
+}
+
 /*** helper function to control the null fields ***/
 
 // StringToNull is a function to convert a string to a sql.NullString
