@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS productions (
     entry VARCHAR(255),
     name VARCHAR(255),
     production_type VARCHAR(255),
-    area DECIMAL(10,2),
+    area DECIMAL(10,2) DEFAULT 0.00,
     cultivated_area DECIMAL(10,2),
     latitude DECIMAL(10,8) DEFAULT 0.0,
     longitude DECIMAL(11,8) DEFAULT 0.0,

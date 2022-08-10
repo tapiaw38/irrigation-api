@@ -109,7 +109,7 @@ func (ts *TurnStorage) GetTurns(ctx context.Context) ([]turn.TurnResponse, error
 				return nil, err
 			}
 
-			pds.WateringHour = 1 * pds.Area
+			pds.WateringHour = 2 * pds.Area
 		}
 
 		turns = append(turns, trs)
@@ -182,7 +182,7 @@ func (ts *TurnStorage) UpdateTurn(ctx context.Context, id string, turn turn.Turn
 			return t, err
 		}
 
-		pds.WateringHour = 1 * pds.Area
+		pds.WateringHour = 2 * pds.Area
 		t.Productions = append(t.Productions, pds)
 	}
 
@@ -271,7 +271,7 @@ func (ts *TurnStorage) GetTurnByID(ctx context.Context, id string) (turn.TurnRes
 			return turn, err
 		}
 
-		pds.WateringHour = 1 * pds.Area
+		pds.WateringHour = 2 * pds.Area
 		turn.Productions = append(turn.Productions, pds)
 	}
 
@@ -357,7 +357,7 @@ func (ts *TurnStorage) CreateTurnProduction(ctx context.Context, turnID string, 
 			return tps, err
 		}
 
-		pds.WateringHour = 1 * pds.Area
+		pds.WateringHour = 2 * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
 
@@ -443,7 +443,7 @@ func (ts *TurnStorage) DeleteTurnProduction(ctx context.Context, turnID string, 
 			return tps, err
 		}
 
-		pds.WateringHour = 1 * pds.Area
+		pds.WateringHour = 2 * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
 
