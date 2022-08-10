@@ -550,8 +550,6 @@ func ScanRowTurnProduction(s Scanner) (turn.TurnProduction, error) {
 	return tp, nil
 }
 
-// helpers
-
 // StringToNull is a function to convert a string to a sql.NullString
 func StringToNull(str string) sql.NullString {
 	null := sql.NullString{String: str}
