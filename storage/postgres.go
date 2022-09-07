@@ -2,19 +2,14 @@ package storage
 
 import (
 	"database/sql"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"io/ioutil"
-	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 // ConnectPostgres connects to the postgres database
 func ConnectPostgres() (*sql.DB, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
 
 	client := "host=" + os.Getenv("DB_HOST") +
 		" user=" + os.Getenv("DB_USER") +

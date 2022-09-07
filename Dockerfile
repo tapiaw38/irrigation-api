@@ -26,5 +26,9 @@ RUN go build -o main .
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
+# Add permissions and run entrypoint
+RUN chmod 755 entrypoint.sh
+#RUN ./entrypoint.sh
+
 # Run the executable
 CMD ["./main"]
