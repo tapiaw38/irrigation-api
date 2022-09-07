@@ -15,7 +15,7 @@ func main() {
 		log.Println(err, "Error loading .env file")
 	}
 
-	// connect to db
+	// connect to database
 	db := storage.NewConnection()
 
 	if err := db.DB.Ping(); err != nil {
