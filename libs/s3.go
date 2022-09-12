@@ -16,22 +16,28 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+var S3 *S3Client
+
+type S3Config struct {
+	AWSRegion          string
+	AWSAccessKeyID     string
+	AWSSecretAccessKey string
+}
+
 type S3Client struct {
 	Sess *session.Session
 }
-
-var S3 *S3Client
 
 func init() {
 	S3 = new(S3Client)
 }
 
-func (t *S3Client) NewSession() {
+func (t *S3Client) NewSession(config *S3Config) {
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(os.Getenv("AWS_REGION")),
+		Region: aws.String(config.AWSRegion),
 		Credentials: credentials.NewStaticCredentials(
-			os.Getenv("AWS_ACCESS_KEY_ID"),
-			os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			config.AWSAccessKeyID,
+			config.AWSSecretAccessKey,
 			""), // token can be left blank for now
 	})
 

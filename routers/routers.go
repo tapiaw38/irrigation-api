@@ -5,90 +5,89 @@ import (
 )
 
 // UserRoutes is a function that returns a router for the user routes
-func (ur *UserRouter) UserRoutes() *mux.Router {
+func UserRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	//router := r.PathPrefix("/").Subrouter()
-	r.HandleFunc("/register", ur.CreateUserHandler).Methods("POST")
-	r.HandleFunc("/login", ur.LoginHandler).Methods("POST")
-	r.HandleFunc("/all", ur.GetUsersHandler).Methods("GET")
-	r.HandleFunc("/{id}", ur.GetUserByIdHandler).Methods("GET")
-	r.HandleFunc("/username/{username}", ur.GetUserByUsernameHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", ur.UpdateUserHandler).Methods("PUT")
-	r.HandleFunc("/partial/{id}", ur.PartialUpdateUserHandler).Methods("PUT")
-	r.HandleFunc("/update/avatar/{id}", ur.UploadAvatarHandler).Methods("PUT")
+	r.HandleFunc("/register", CreateUserHandler).Methods("POST")
+	r.HandleFunc("/login", LoginHandler).Methods("POST")
+	r.HandleFunc("/all", GetUsersHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetUserByIdHandler).Methods("GET")
+	r.HandleFunc("/username/{username}", GetUserByUsernameHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateUserHandler).Methods("PUT")
+	r.HandleFunc("/partial/{id}", PartialUpdateUserHandler).Methods("PUT")
+	r.HandleFunc("/update/avatar/{id}", UploadAvatarHandler).Methods("PUT")
 
 	return r
 }
 
 // ProducerRoutes is a function that returns a router for the product routes
-func (pr *ProducerRouter) ProducerRoutes() *mux.Router {
+func ProducerRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", pr.CreateProducersHandler).Methods("POST")
-	r.HandleFunc("/all", pr.GetProducersHandler).Methods("GET")
-	r.HandleFunc("/{id}", pr.GetProducerByIDHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", pr.UpdateProducerHandler).Methods("PUT")
-	r.HandleFunc("/partial/{id}", pr.PartialUpdateProducerHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", pr.DeleteProducerHandler).Methods("DELETE")
+	r.HandleFunc("/create", CreateProducersHandler).Methods("POST")
+	r.HandleFunc("/all", GetProducersHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetProducerByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateProducerHandler).Methods("PUT")
+	r.HandleFunc("/partial/{id}", PartialUpdateProducerHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteProducerHandler).Methods("DELETE")
 
 	return r
 }
 
 // ProductionRoutes is a function that returns a router for the production routes
-func (pr *ProductionRouter) ProductionRoutes() *mux.Router {
+func ProductionRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", pr.CreateProductionHandler).Methods("POST")
-	r.HandleFunc("/all", pr.GetProductionsHandler).Methods("GET")
-	r.HandleFunc("/{id}", pr.GetProductionByIDHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", pr.UpdateProductionHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", pr.DeleteProductionHandler).Methods("DELETE")
-	r.HandleFunc("/upload/picture/{id}", pr.UploadPictureHandler).Methods("PUT")
+	r.HandleFunc("/create", CreateProductionHandler).Methods("POST")
+	r.HandleFunc("/all", GetProductionsHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetProductionByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateProductionHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteProductionHandler).Methods("DELETE")
+	r.HandleFunc("/upload/picture/{id}", UploadPictureHandler).Methods("PUT")
 
 	return r
 }
 
 // SectionRoutes is a function that returns a router for the section routes
-func (sr *SectionRouter) SectionRoutes() *mux.Router {
+func SectionRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", sr.CreateSectionsHandler).Methods("POST")
-	r.HandleFunc("/all", sr.GetSectionsHandler).Methods("GET")
-	r.HandleFunc("/{id}", sr.GetSectionByIDHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", sr.UpdateSectionHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", sr.DeleteSectionHandler).Methods("DELETE")
+	r.HandleFunc("/create", CreateSectionsHandler).Methods("POST")
+	r.HandleFunc("/all", GetSectionsHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetSectionByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateSectionHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteSectionHandler).Methods("DELETE")
 
 	return r
 }
 
 // IntakeRoutes is a function that returns a router for the intake routes
-func (ir *IntakeRouter) IntakeRoutes() *mux.Router {
+func IntakeRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", ir.CreateIntakesHandler).Methods("POST")
-	r.HandleFunc("/all", ir.GetIntakesHandler).Methods("GET")
-	r.HandleFunc("/{id}", ir.GetIntakeByIDHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", ir.UpdateIntakeHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", ir.DeleteIntakeHandler).Methods("DELETE")
-	r.HandleFunc("/production/{id}", ir.CreateIntakeProductionHandler).Methods("POST")
-	r.HandleFunc("/production/update/{id}", ir.UpdateIntakeProductionHandler).Methods("PUT")
-	r.HandleFunc("/production/delete/{id}", ir.DeleteIntakeProductionHandler).Methods("POST")
+	r.HandleFunc("/create", CreateIntakesHandler).Methods("POST")
+	r.HandleFunc("/all", GetIntakesHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetIntakeByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateIntakeHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteIntakeHandler).Methods("DELETE")
+	r.HandleFunc("/production/{id}", CreateIntakeProductionHandler).Methods("POST")
+	r.HandleFunc("/production/update/{id}", UpdateIntakeProductionHandler).Methods("PUT")
+	r.HandleFunc("/production/delete/{id}", DeleteIntakeProductionHandler).Methods("POST")
 
 	return r
 }
 
 // TurnRoutes is a function that returns a router for the turn routes
-func (tr *TurnRouter) TurnRoutes() *mux.Router {
+func TurnRoutes() *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", tr.CreateTurnHandler).Methods("POST")
-	r.HandleFunc("/all", tr.GetTurnsHandler).Methods("GET")
-	r.HandleFunc("/{id}", tr.GetTurnByIDHandler).Methods("GET")
-	r.HandleFunc("/update/{id}", tr.UpdateTurnHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", tr.DeleteTurnHandler).Methods("DELETE")
-	r.HandleFunc("/production/{id}", tr.CreateTurnProductionHandler).Methods("POST")
-	r.HandleFunc("/production/delete/{id}", tr.DeleteTurnProductionHandler).Methods("POST")
+	r.HandleFunc("/create", CreateTurnHandler).Methods("POST")
+	r.HandleFunc("/all", GetTurnsHandler).Methods("GET")
+	r.HandleFunc("/{id}", GetTurnByIDHandler).Methods("GET")
+	r.HandleFunc("/update/{id}", UpdateTurnHandler).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteTurnHandler).Methods("DELETE")
+	r.HandleFunc("/production/{id}", CreateTurnProductionHandler).Methods("POST")
+	r.HandleFunc("/production/delete/{id}", DeleteTurnProductionHandler).Methods("POST")
 
 	return r
 }
