@@ -7,7 +7,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/tapiaw38/irrigation-api/models/user"
+	"github.com/tapiaw38/irrigation-api/models"
 )
 
 // Claim is the custom claim
@@ -18,7 +18,7 @@ type Claim struct {
 }
 
 // GenerateJWT generates a JWT token
-func GenerateJWT(user user.User) (string, error) {
+func GenerateJWT(user models.User) (string, error) {
 
 	myKey := []byte(os.Getenv("JWT_SECRET"))
 

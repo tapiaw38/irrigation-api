@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/tapiaw38/irrigation-api/models/user"
+	"github.com/tapiaw38/irrigation-api/models"
 )
 
 type UserCache struct {
 	Cache *RedisCache
 }
 
-func (ur *UserCache) Set(key string, value *user.User) {
+func (ur *UserCache) Set(key string, value *models.User) {
 
 	client := ur.Cache.GetClient()
 	json, err := json.Marshal(&value)
@@ -27,7 +27,7 @@ func (ur *UserCache) Set(key string, value *user.User) {
 	}
 }
 
-func (ur *UserCache) Get(key string) *user.User {
+func (ur *UserCache) Get(key string) *models.User {
 
 	client := ur.Cache.GetClient()
 	val, err := client.Get(key).Result()
@@ -36,7 +36,7 @@ func (ur *UserCache) Get(key string) *user.User {
 		return nil
 	}
 
-	user := user.User{}
+	user := models.User{}
 	err = json.Unmarshal([]byte(val), &user)
 
 	if err != nil {
