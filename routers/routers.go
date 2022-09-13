@@ -2,10 +2,11 @@ package routers
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/tapiaw38/irrigation-api/server"
 )
 
 // UserRoutes is a function that returns a router for the user routes
-func UserRoutes() *mux.Router {
+func UserRoutes(s server.Server) *mux.Router {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/register", CreateUserHandler).Methods("POST")
@@ -15,17 +16,17 @@ func UserRoutes() *mux.Router {
 	r.HandleFunc("/username/{username}", GetUserByUsernameHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", UpdateUserHandler).Methods("PUT")
 	r.HandleFunc("/partial/{id}", PartialUpdateUserHandler).Methods("PUT")
-	r.HandleFunc("/update/avatar/{id}", UploadAvatarHandler).Methods("PUT")
+	r.HandleFunc("/update/avatar/{id}", UploadAvatarHandler(s)).Methods("PUT")
 
 	return r
 }
 
 // ProducerRoutes is a function that returns a router for the product routes
-func ProducerRoutes() *mux.Router {
+func ProducerRoutes(s server.Server) *mux.Router {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/create", CreateProducersHandler).Methods("POST")
-	r.HandleFunc("/all", GetProducersHandler).Methods("GET")
+	r.HandleFunc("/create", CreateProducersHandler(s)).Methods("POST")
+	r.HandleFunc("/all", GetProducersHandler(s)).Methods("GET")
 	r.HandleFunc("/{id}", GetProducerByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", UpdateProducerHandler).Methods("PUT")
 	r.HandleFunc("/partial/{id}", PartialUpdateProducerHandler).Methods("PUT")
@@ -35,7 +36,7 @@ func ProducerRoutes() *mux.Router {
 }
 
 // ProductionRoutes is a function that returns a router for the production routes
-func ProductionRoutes() *mux.Router {
+func ProductionRoutes(s server.Server) *mux.Router {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/create", CreateProductionHandler).Methods("POST")
@@ -43,7 +44,7 @@ func ProductionRoutes() *mux.Router {
 	r.HandleFunc("/{id}", GetProductionByIDHandler).Methods("GET")
 	r.HandleFunc("/update/{id}", UpdateProductionHandler).Methods("PUT")
 	r.HandleFunc("/delete/{id}", DeleteProductionHandler).Methods("DELETE")
-	r.HandleFunc("/upload/picture/{id}", UploadPictureHandler).Methods("PUT")
+	r.HandleFunc("/upload/picture/{id}", UploadPictureHandler(s)).Methods("PUT")
 
 	return r
 }
@@ -88,6 +89,14 @@ func TurnRoutes() *mux.Router {
 	r.HandleFunc("/delete/{id}", DeleteTurnHandler).Methods("DELETE")
 	r.HandleFunc("/production/{id}", CreateTurnProductionHandler).Methods("POST")
 	r.HandleFunc("/production/delete/{id}", DeleteTurnProductionHandler).Methods("POST")
+
+	return r
+}
+
+func WebSocketRoutes(s server.Server) *mux.Router {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/", s.Hub().HandleWebSocket)
 
 	return r
 }

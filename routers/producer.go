@@ -7,48 +7,59 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/models"
 	"github.com/tapiaw38/irrigation-api/repository"
+	"github.com/tapiaw38/irrigation-api/server"
 )
 
 // CreateProducersHandler handles the request to get all producers
-func CreateProducersHandler(w http.ResponseWriter, r *http.Request) {
+func CreateProducersHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	var producers []models.Producer
+		var producers []models.Producer
 
-	err := json.NewDecoder(r.Body).Decode(&producers)
+		err := json.NewDecoder(r.Body).Decode(&producers)
 
-	if err != nil {
-		http.Error(w, "An error ocurred when trying to enter an producers "+err.Error(), 400)
-		return
+		if err != nil {
+			http.Error(w, "An error ocurred when trying to enter an producers "+err.Error(), 400)
+			return
+		}
+
+		defer r.Body.Close()
+
+		ctx := r.Context()
+
+		producers, err = repository.CreateProducers(ctx, producers)
+
+		if err != nil {
+			http.Error(w, "An error occurred when trying to create producers in database "+err.Error(), 400)
+			return
+		}
+
+		// send create producer websocket message
+		var producerMessage = models.WebsocketMessage{
+			Type:    "producer_created",
+			Payload: producers,
+		}
+		s.Hub().Broadcast(producerMessage, nil)
+
+		response := NewResponse(Message, "ok", producers)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	defer r.Body.Close()
-
-	ctx := r.Context()
-
-	producers, err = repository.CreateProducers(ctx, producers)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to create producers in database "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", producers)
-	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // GetProducersHandler handles the request to get all producers
-func GetProducersHandler(w http.ResponseWriter, r *http.Request) {
+func GetProducersHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		producers, err := repository.GetProducers(ctx)
 
-	ctx := r.Context()
-	producers, err := repository.GetProducers(ctx)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), 400)
+			return
+		}
 
-	if err != nil {
-		http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), 400)
-		return
+		response := NewResponse(Message, "ok", producers)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	response := NewResponse(Message, "ok", producers)
-	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // GetProducerByIdHandler handles the request to get a producer by id
