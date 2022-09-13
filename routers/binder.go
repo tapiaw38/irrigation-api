@@ -5,17 +5,18 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/tapiaw38/irrigation-api/server"
 )
 
-func BinderRoutes(router *mux.Router) {
-
-	// Mount the routers
-	mount(router, "/users", UserRoutes())
-	mount(router, "/producers", ProducerRoutes())
-	mount(router, "/productions", ProductionRoutes())
+func BinderRoutes(s server.Server, router *mux.Router) {
+	// mount the routers
+	mount(router, "/users", UserRoutes(s))
+	mount(router, "/producers", ProducerRoutes(s))
+	mount(router, "/productions", ProductionRoutes(s))
 	mount(router, "/sections", SectionRoutes())
 	mount(router, "/intakes", IntakeRoutes())
 	mount(router, "/turns", TurnRoutes())
+	mount(router, "/ws", WebSocketRoutes(s))
 }
 
 // mount is a helper function to mount a router to a path

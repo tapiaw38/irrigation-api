@@ -9,9 +9,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tapiaw38/irrigation-api/claim"
-	"github.com/tapiaw38/irrigation-api/libs"
 	"github.com/tapiaw38/irrigation-api/models"
 	"github.com/tapiaw38/irrigation-api/repository"
+	"github.com/tapiaw38/irrigation-api/server"
 )
 
 // Login is function to return the user
@@ -280,64 +280,66 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // UploadAvatarHandler handles the request to upload an avatar
-func UploadAvatarHandler(w http.ResponseWriter, r *http.Request) {
+func UploadAvatarHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	id := mux.Vars(r)["id"]
+		id := mux.Vars(r)["id"]
 
-	if id == "" {
-		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
-		return
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
+
+		maxSize := int64(1024 * 1024 * 5) // 5MB
+
+		err := r.ParseMultipartForm(maxSize)
+
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "Image too large. Max Size: %v", maxSize)
+			return
+		}
+
+		file, fileHeader, err := r.FormFile("picture")
+
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "Could not get uploaded file")
+			return
+		}
+
+		defer file.Close()
+
+		// reused if we're uploading many files
+		fileName, err := s.S3().UploadFileToS3(file, fileHeader, id)
+
+		if err != nil {
+			fmt.Fprintf(w, "Could not upload file error"+err.Error(), 400)
+			return
+		}
+
+		ctx := r.Context()
+
+		fileUrl := s.S3().GenerateUrl(fileName)
+
+		u, err := repository.GetUserById(ctx, id)
+
+		if err != nil {
+			fmt.Fprintf(w, "Could not get user from database"+err.Error(), 400)
+			return
+		}
+
+		u.Picture = fileUrl
+
+		user, err := repository.PartialUpdateUser(ctx, id, u)
+
+		if err != nil {
+			http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)
+			return
+		}
+
+		response := NewResponse(Message, "ok", user)
+		ResponseWithJson(w, response, http.StatusOK)
+
 	}
-
-	maxSize := int64(1024 * 1024 * 5) // 5MB
-
-	err := r.ParseMultipartForm(maxSize)
-
-	if err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, "Image too large. Max Size: %v", maxSize)
-		return
-	}
-
-	file, fileHeader, err := r.FormFile("picture")
-
-	if err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, "Could not get uploaded file")
-		return
-	}
-
-	defer file.Close()
-
-	// reused if we're uploading many files
-	fileName, err := libs.S3.UploadFileToS3(file, fileHeader, id)
-
-	if err != nil {
-		fmt.Fprintf(w, "Could not upload file error"+err.Error(), 400)
-		return
-	}
-
-	ctx := r.Context()
-
-	fileUrl := libs.S3.GenerateUrl(fileName)
-
-	u, err := repository.GetUserById(ctx, id)
-
-	if err != nil {
-		fmt.Fprintf(w, "Could not get user from database"+err.Error(), 400)
-		return
-	}
-
-	u.Picture = fileUrl
-
-	user, err := repository.PartialUpdateUser(ctx, id, u)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to update a user in database "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", user)
-	ResponseWithJson(w, response, http.StatusOK)
-
 }

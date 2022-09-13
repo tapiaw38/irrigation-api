@@ -1,11 +1,10 @@
-package libs
+package utils
 
 import (
 	"bytes"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -16,23 +15,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-var S3 *S3Client
-
-type S3Config struct {
+type Config struct {
 	AWSRegion          string
 	AWSAccessKeyID     string
 	AWSSecretAccessKey string
+	AWSBucket          string
 }
 
 type S3Client struct {
-	Sess *session.Session
+	Sess   *session.Session
+	config *Config
 }
 
-func init() {
-	S3 = new(S3Client)
-}
-
-func (t *S3Client) NewSession(config *S3Config) {
+func NewSession(config *Config) *S3Client {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(config.AWSRegion),
 		Credentials: credentials.NewStaticCredentials(
@@ -44,7 +39,11 @@ func (t *S3Client) NewSession(config *S3Config) {
 	if err != nil {
 		log.Println("Failed to create new session", err)
 	}
-	t.Sess = sess
+
+	return &S3Client{
+		Sess:   sess,
+		config: config,
+	}
 }
 
 // UploadFileToS3 saves a file to aws bucket and returns the url to // the file and an error if there's any
@@ -62,7 +61,7 @@ func (t *S3Client) UploadFileToS3(file multipart.File, fileHeader *multipart.Fil
 	// filename, content-type and storage class of the file
 	// you're uploading
 	_, err := s3.New(t.Sess).PutObject(&s3.PutObjectInput{
-		Bucket:               aws.String(os.Getenv("AWS_BUCKET")),
+		Bucket:               aws.String(t.config.AWSBucket),
 		Key:                  aws.String(tempFileName),
 		ACL:                  aws.String("public-read"), // could be private if you want it to be access by only authorized users
 		Body:                 bytes.NewReader(buffer),
@@ -82,7 +81,7 @@ func (t *S3Client) UploadFileToS3(file multipart.File, fileHeader *multipart.Fil
 // GenerateUrl generates a url to the file in s3
 func (t *S3Client) GenerateUrl(keyName string) string {
 	req, _ := s3.New(t.Sess).GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(os.Getenv("AWS_BUCKET")),
+		Bucket: aws.String(t.config.AWSBucket),
 		Key:    aws.String(keyName),
 	})
 	rest.Build(req)
