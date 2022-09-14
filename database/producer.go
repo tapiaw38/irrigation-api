@@ -99,14 +99,14 @@ func (ps *PostgresRepository) GetProducerByID(ctx context.Context, id string) (m
 
 	row := ps.db.QueryRowContext(ctx, q, id)
 
-	p, err := ScanRowProducers(row)
+	producer, err := ScanRowProducers(row)
 
 	if err != nil {
 		log.Println(err)
-		return p, err
+		return producer, err
 	}
 
-	return p, nil
+	return producer, nil
 }
 
 // UpdateProducer updates a producer in the database

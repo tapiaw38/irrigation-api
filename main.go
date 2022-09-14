@@ -24,6 +24,8 @@ func main() {
 	AWS_ACCESS_KEY_ID := os.Getenv("AWS_ACCESS_KEY_ID")
 	AWS_SECRET_ACCESS_KEY := os.Getenv("AWS_SECRET_ACCESS_KEY")
 	AWS_BUCKET := os.Getenv("AWS_BUCKET")
+	// connect Redis
+	REDIS_HOST := os.Getenv("REDIS_HOST")
 
 	s, err := server.NewServer(&server.Config{
 		DatabaseURL:        DATABASE_URL,
@@ -32,6 +34,9 @@ func main() {
 		AWSAccessKeyID:     AWS_ACCESS_KEY_ID,
 		AWSSecretAccessKey: AWS_SECRET_ACCESS_KEY,
 		AWSBucket:          AWS_BUCKET,
+		RedisHost:          REDIS_HOST,
+		RedisDB:            0,
+		RedisExpires:       10,
 	})
 
 	if err != nil {

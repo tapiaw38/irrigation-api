@@ -63,21 +63,32 @@ func GetProducersHandler(s server.Server) http.HandlerFunc {
 }
 
 // GetProducerByIdHandler handles the request to get a producer by id
-func GetProducerByIDHandler(w http.ResponseWriter, r *http.Request) {
+func GetProducerByIDHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	vars := mux.Vars(r)
-	id := vars["id"]
+		ctx := r.Context()
+		id := mux.Vars(r)["id"]
 
-	ctx := r.Context()
-	producer, err := repository.GetProducerByID(ctx, id)
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
 
-	if err != nil {
-		http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), 400)
-		return
+		var producer *models.Producer = s.Redis().GetProducer(id)
+		if producer == nil {
+			producer, err := repository.GetProducerByID(ctx, id)
+			if err != nil {
+				http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), 400)
+				return
+			}
+			s.Redis().SetProducer(id, &producer)
+			response := NewResponse(Message, "ok", producer)
+			ResponseWithJson(w, response, http.StatusOK)
+			return
+		}
+		response := NewResponse(Message, "ok", producer)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	response := NewResponse(Message, "ok", producer)
-	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // UpdateProducerHandler handles the request to update a producer

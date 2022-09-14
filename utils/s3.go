@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-type Config struct {
+type S3Config struct {
 	AWSRegion          string
 	AWSAccessKeyID     string
 	AWSSecretAccessKey string
@@ -24,10 +24,10 @@ type Config struct {
 
 type S3Client struct {
 	Sess   *session.Session
-	config *Config
+	config *S3Config
 }
 
-func NewSession(config *Config) *S3Client {
+func NewSession(config *S3Config) *S3Client {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(config.AWSRegion),
 		Credentials: credentials.NewStaticCredentials(

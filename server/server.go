@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/tapiaw38/irrigation-api/cache"
 	"github.com/tapiaw38/irrigation-api/database"
 	"github.com/tapiaw38/irrigation-api/middlewares"
 	"github.com/tapiaw38/irrigation-api/repository"
@@ -23,6 +25,7 @@ type Server interface {
 	Config() *Config
 	Hub() *websocket.Hub
 	S3() *utils.S3Client
+	Redis() *cache.RedisCache
 }
 
 type Config struct {
@@ -32,6 +35,9 @@ type Config struct {
 	AWSAccessKeyID     string
 	AWSSecretAccessKey string
 	AWSBucket          string
+	RedisHost          string
+	RedisDB            int
+	RedisExpires       time.Duration
 }
 
 type Broker struct {
@@ -39,6 +45,7 @@ type Broker struct {
 	router *mux.Router
 	hub    *websocket.Hub
 	s3     *utils.S3Client
+	redis  *cache.RedisCache
 }
 
 func (b *Broker) Config() *Config {
@@ -51,6 +58,10 @@ func (b *Broker) Hub() *websocket.Hub {
 
 func (b *Broker) S3() *utils.S3Client {
 	return b.s3
+}
+
+func (b *Broker) Redis() *cache.RedisCache {
+	return b.redis
 }
 
 func NewServer(config *Config) (*Broker, error) {
@@ -66,11 +77,16 @@ func NewServer(config *Config) (*Broker, error) {
 		config: config,
 		router: mux.NewRouter(),
 		hub:    websocket.NewHub(),
-		s3: utils.NewSession(&utils.Config{
+		s3: utils.NewSession(&utils.S3Config{
 			AWSRegion:          config.AWSRegion,
 			AWSAccessKeyID:     config.AWSAccessKeyID,
 			AWSSecretAccessKey: config.AWSSecretAccessKey,
 			AWSBucket:          config.AWSBucket,
+		}),
+		redis: cache.NewRedisCache(&cache.RedisCache{
+			Host:    config.RedisHost,
+			DB:      config.RedisDB,
+			Expires: config.RedisExpires,
 		}),
 	}
 	return broker, nil

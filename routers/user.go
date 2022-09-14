@@ -144,26 +144,32 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserByIdHandler handles the request to get a user by id
-func GetUserByIdHandler(w http.ResponseWriter, r *http.Request) {
+func GetUserByIdHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
-	id := mux.Vars(r)["id"]
+		ctx := r.Context()
+		id := mux.Vars(r)["id"]
 
-	if id == "" {
-		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
-		return
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
+
+		var user *models.User = s.Redis().GetUser(id)
+		if user == nil {
+			user, err := repository.GetUserById(ctx, id)
+			if err != nil {
+				http.Error(w, "No record found with that id "+err.Error(), 400)
+				return
+			}
+			s.Redis().SetUser(id, &user)
+			response := NewResponse(Message, "ok", user)
+			ResponseWithJson(w, response, http.StatusOK)
+			return
+		}
+		response := NewResponse(Message, "ok", user)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	user, err := repository.GetUserById(ctx, id)
-
-	if err != nil {
-		http.Error(w, "No record found with that id "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", user)
-	ResponseWithJson(w, response, http.StatusOK)
-
 }
 
 // GetUserByUsernameHandler handles the request to get a user by username

@@ -12,11 +12,11 @@ type RedisCache struct {
 	Expires time.Duration
 }
 
-func NewRedisCache(host string, db int, expires time.Duration) *RedisCache {
+func NewRedisCache(config *RedisCache) *RedisCache {
 	return &RedisCache{
-		Host:    host,
-		DB:      db,
-		Expires: expires,
+		Host:    config.Host,
+		DB:      config.DB,
+		Expires: config.Expires,
 	}
 }
 

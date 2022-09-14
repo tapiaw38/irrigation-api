@@ -7,7 +7,7 @@ import (
 	"github.com/tapiaw38/irrigation-api/models"
 )
 
-func (c *RedisCache) SetUser(key string, value *models.User) {
+func (c *RedisCache) SetProducer(key string, value *models.Producer) {
 
 	client := c.GetClient()
 	json, err := json.Marshal(&value)
@@ -23,7 +23,7 @@ func (c *RedisCache) SetUser(key string, value *models.User) {
 	}
 }
 
-func (c *RedisCache) GetUser(key string) *models.User {
+func (c *RedisCache) GetProducer(key string) *models.Producer {
 
 	client := c.GetClient()
 	val, err := client.Get(key).Result()
@@ -32,12 +32,12 @@ func (c *RedisCache) GetUser(key string) *models.User {
 		return nil
 	}
 
-	user := models.User{}
-	err = json.Unmarshal([]byte(val), &user)
+	producer := models.Producer{}
+	err = json.Unmarshal([]byte(val), &producer)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return &user
+	return &producer
 }
