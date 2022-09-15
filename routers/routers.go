@@ -28,9 +28,9 @@ func ProducerRoutes(s server.Server) *mux.Router {
 	r.HandleFunc("/create", CreateProducersHandler(s)).Methods("POST")
 	r.HandleFunc("/all", GetProducersHandler(s)).Methods("GET")
 	r.HandleFunc("/{id}", GetProducerByIDHandler(s)).Methods("GET")
-	r.HandleFunc("/update/{id}", UpdateProducerHandler).Methods("PUT")
-	r.HandleFunc("/partial/{id}", PartialUpdateProducerHandler).Methods("PUT")
-	r.HandleFunc("/delete/{id}", DeleteProducerHandler).Methods("DELETE")
+	r.HandleFunc("/update/{id}", UpdateProducerHandler(s)).Methods("PUT")
+	r.HandleFunc("/partial/{id}", PartialUpdateProducerHandler(s)).Methods("PUT")
+	r.HandleFunc("/delete/{id}", DeleteProducerHandler(s)).Methods("DELETE")
 
 	return r
 }

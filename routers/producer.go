@@ -13,34 +13,25 @@ import (
 // CreateProducersHandler handles the request to get all producers
 func CreateProducersHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		var producers []models.Producer
-
 		err := json.NewDecoder(r.Body).Decode(&producers)
-
 		if err != nil {
-			http.Error(w, "An error ocurred when trying to enter an producers "+err.Error(), 400)
+			http.Error(w, "An error ocurred when trying to enter an producers "+err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		defer r.Body.Close()
-
 		ctx := r.Context()
-
 		producers, err = repository.CreateProducers(ctx, producers)
-
 		if err != nil {
-			http.Error(w, "An error occurred when trying to create producers in database "+err.Error(), 400)
+			http.Error(w, "An error occurred when trying to create producers in database "+err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		// send create producer websocket message
+		// send producer message created websocket
 		var producerMessage = models.WebsocketMessage{
 			Type:    "producer_created",
 			Payload: producers,
 		}
 		s.Hub().Broadcast(producerMessage, nil)
-
 		response := NewResponse(Message, "ok", producers)
 		ResponseWithJson(w, response, http.StatusOK)
 	}
@@ -50,13 +41,19 @@ func CreateProducersHandler(s server.Server) http.HandlerFunc {
 func GetProducersHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		producers, err := repository.GetProducers(ctx)
-
-		if err != nil {
-			http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), 400)
+		// get producers cache
+		var producers *[]models.Producer = s.Redis().GetProducers("producers")
+		if producers == nil {
+			producers, err := repository.GetProducers(ctx)
+			if err != nil {
+				http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			s.Redis().SetProducers("producers", &producers)
+			response := NewResponse(Message, "ok", producers)
+			ResponseWithJson(w, response, http.StatusOK)
 			return
 		}
-
 		response := NewResponse(Message, "ok", producers)
 		ResponseWithJson(w, response, http.StatusOK)
 	}
@@ -65,20 +62,18 @@ func GetProducersHandler(s server.Server) http.HandlerFunc {
 // GetProducerByIdHandler handles the request to get a producer by id
 func GetProducerByIDHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		ctx := r.Context()
 		id := mux.Vars(r)["id"]
-
 		if id == "" {
 			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
 			return
 		}
-
+		// get producer cache
 		var producer *models.Producer = s.Redis().GetProducer(id)
 		if producer == nil {
 			producer, err := repository.GetProducerByID(ctx, id)
 			if err != nil {
-				http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), 400)
+				http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), http.StatusBadRequest)
 				return
 			}
 			s.Redis().SetProducer(id, &producer)
@@ -92,92 +87,72 @@ func GetProducerByIDHandler(s server.Server) http.HandlerFunc {
 }
 
 // UpdateProducerHandler handles the request to update a producer
-func UpdateProducerHandler(w http.ResponseWriter, r *http.Request) {
-
-	var pr models.Producer
-
-	id := mux.Vars(r)["id"]
-
-	if id == "" {
-		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
-		return
+func UpdateProducerHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
+		var producer models.Producer
+		err := json.NewDecoder(r.Body).Decode(&producer)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to enter a producer "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+		ctx := r.Context()
+		producer, err = repository.UpdateProducer(ctx, id, producer)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to update a producer in database "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		response := NewResponse(Message, "ok", producer)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	err := json.NewDecoder(r.Body).Decode(&pr)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to enter a producer "+err.Error(), 400)
-		return
-	}
-
-	defer r.Body.Close()
-
-	ctx := r.Context()
-
-	pr, err = repository.UpdateProducer(ctx, id, pr)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to update a producer in database "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", pr)
-	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // PartialUpdateProducerHandler handles the request to update a producer
-func PartialUpdateProducerHandler(w http.ResponseWriter, r *http.Request) {
-
-	var pr models.Producer
-
-	id := mux.Vars(r)["id"]
-
-	if id == "" {
-		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
-		return
+func PartialUpdateProducerHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
+		var producer models.Producer
+		err := json.NewDecoder(r.Body).Decode(&producer)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to enter a producer "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+		ctx := r.Context()
+		producer, err = repository.PartialUpdateProducer(ctx, id, producer)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to update a producer in database "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		response := NewResponse(Message, "ok", producer)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	err := json.NewDecoder(r.Body).Decode(&pr)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to enter a producer "+err.Error(), 400)
-		return
-	}
-
-	defer r.Body.Close()
-
-	ctx := r.Context()
-
-	pr, err = repository.PartialUpdateProducer(ctx, id, pr)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to update a producer in database "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", pr)
-	ResponseWithJson(w, response, http.StatusOK)
 }
 
 // DeleteProducerHandler handles the request to delete a producer
-func DeleteProducerHandler(w http.ResponseWriter, r *http.Request) {
-
-	id := mux.Vars(r)["id"]
-
-	if id == "" {
-		http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
-		return
+func DeleteProducerHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		if id == "" {
+			http.Error(w, "An error occurred, id is required", http.StatusBadRequest)
+			return
+		}
+		ctx := r.Context()
+		producer, err := repository.DeleteProducer(ctx, id)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to delete a producer in database "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		response := NewResponse(Message, "ok", producer)
+		ResponseWithJson(w, response, http.StatusOK)
 	}
-
-	ctx := r.Context()
-
-	producer, err := repository.DeleteProducer(ctx, id)
-
-	if err != nil {
-		http.Error(w, "An error occurred when trying to delete a producer in database "+err.Error(), 400)
-		return
-	}
-
-	response := NewResponse(Message, "ok", producer)
-	ResponseWithJson(w, response, http.StatusOK)
 }
