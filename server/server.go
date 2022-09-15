@@ -127,7 +127,7 @@ func (b *Broker) Serve(binder func(s Server, r *mux.Router)) {
 
 	log.Println("listening on port", b.config.Port)
 
-	if err := http.ListenAndServe(b.config.Port, handler); err != nil {
+	if err := http.ListenAndServe(":"+b.config.Port, handler); err != nil {
 		log.Fatal(err)
 	}
 }
