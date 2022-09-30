@@ -42,16 +42,26 @@ func GetProducersHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		// get producers cache
-		var producers *[]models.Producer = s.Redis().GetProducers("producers")
-		if producers == nil {
-			producers, err := repository.GetProducers(ctx)
-			if err != nil {
-				http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), http.StatusBadRequest)
+		/*
+			var producers *[]models.Producer = s.Redis().GetProducers("producers")
+			if producers == nil {
+				producers, err := repository.GetProducers(ctx)
+				if err != nil {
+					http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), http.StatusBadRequest)
+					return
+				}
+				s.Redis().SetProducers("producers", &producers)
+				response := NewResponse(Message, "ok", producers)
+				ResponseWithJson(w, response, http.StatusOK)
 				return
 			}
-			s.Redis().SetProducers("producers", &producers)
 			response := NewResponse(Message, "ok", producers)
 			ResponseWithJson(w, response, http.StatusOK)
+		*/
+
+		producers, err := repository.GetProducers(ctx)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to get producers in database "+err.Error(), http.StatusBadRequest)
 			return
 		}
 		response := NewResponse(Message, "ok", producers)
@@ -69,16 +79,26 @@ func GetProducerByIDHandler(s server.Server) http.HandlerFunc {
 			return
 		}
 		// get producer cache
-		var producer *models.Producer = s.Redis().GetProducer(id)
-		if producer == nil {
-			producer, err := repository.GetProducerByID(ctx, id)
-			if err != nil {
-				http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), http.StatusBadRequest)
+		/*
+			var producer *models.Producer = s.Redis().GetProducer(id)
+			if producer == nil {
+				producer, err := repository.GetProducerByID(ctx, id)
+				if err != nil {
+					http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), http.StatusBadRequest)
+					return
+				}
+				s.Redis().SetProducer(id, &producer)
+				response := NewResponse(Message, "ok", producer)
+				ResponseWithJson(w, response, http.StatusOK)
 				return
 			}
-			s.Redis().SetProducer(id, &producer)
 			response := NewResponse(Message, "ok", producer)
 			ResponseWithJson(w, response, http.StatusOK)
+		*/
+
+		producer, err := repository.GetProducerByID(ctx, id)
+		if err != nil {
+			http.Error(w, "An error occurred when trying to get producer in database "+err.Error(), http.StatusBadRequest)
 			return
 		}
 		response := NewResponse(Message, "ok", producer)

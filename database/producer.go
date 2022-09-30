@@ -10,19 +10,15 @@ import (
 
 // CreateProducer creates a new producer in the database
 func (ps *PostgresRepository) CreateProducers(ctx context.Context, producers []models.Producer) ([]models.Producer, error) {
-
 	q := `
 	INSERT INTO producers (first_name, last_name, document_number, birth_date, phone_number, address, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id;
 	`
-
 	pds := []models.Producer{}
 
 	for _, p := range producers {
-
 		var id int64
-
 		row := ps.db.QueryRowContext(
 			ctx, q,
 			p.FirstName,
@@ -43,24 +39,20 @@ func (ps *PostgresRepository) CreateProducers(ctx context.Context, producers []m
 		}
 
 		p.ID = id
-
 		pds = append(pds, p)
 	}
 
 	return pds, nil
-
 }
 
 // GetProducers returns all producers from the database
 func (ps *PostgresRepository) GetProducers(ctx context.Context) ([]models.Producer, error) {
-
 	q := `
 	SELECT id, first_name, last_name, document_number, 
 		birth_date, phone_number, address, 
 		is_active, created_at, updated_at
 		FROM producers;
 	`
-
 	rows, err := ps.db.QueryContext(ctx, q)
 
 	if err != nil {
@@ -74,12 +66,10 @@ func (ps *PostgresRepository) GetProducers(ctx context.Context) ([]models.Produc
 
 	for rows.Next() {
 		p, err := ScanRowProducers(rows)
-
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
-
 		pds = append(pds, p)
 	}
 
@@ -88,7 +78,6 @@ func (ps *PostgresRepository) GetProducers(ctx context.Context) ([]models.Produc
 
 // GetProducerByID returns a producer from the database by id
 func (ps *PostgresRepository) GetProducerByID(ctx context.Context, id string) (models.Producer, error) {
-
 	q := `
 	SELECT id, first_name, last_name, document_number,
 		birth_date, phone_number, address,
@@ -111,7 +100,6 @@ func (ps *PostgresRepository) GetProducerByID(ctx context.Context, id string) (m
 
 // UpdateProducer updates a producer in the database
 func (ps *PostgresRepository) UpdateProducer(ctx context.Context, id string, p models.Producer) (models.Producer, error) {
-
 	q := `
 	UPDATE producers
 		SET first_name = $1, last_name = $2, document_number = $3, 
@@ -119,7 +107,6 @@ func (ps *PostgresRepository) UpdateProducer(ctx context.Context, id string, p m
 		WHERE id = $8
 		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
 	`
-
 	row := ps.db.QueryRowContext(
 		ctx, q,
 		p.FirstName,
@@ -144,7 +131,6 @@ func (ps *PostgresRepository) UpdateProducer(ctx context.Context, id string, p m
 
 // PartialUpdateProducer updates a producer in the database
 func (ps *PostgresRepository) PartialUpdateProducer(ctx context.Context, id string, p models.Producer) (models.Producer, error) {
-
 	q := `
 	UPDATE producers
 		SET
@@ -193,13 +179,11 @@ func (ps *PostgresRepository) PartialUpdateProducer(ctx context.Context, id stri
 
 // DeleteProducer deletes a producer from the database
 func (ps *PostgresRepository) DeleteProducer(ctx context.Context, id string) (models.Producer, error) {
-
 	q := `
 	DELETE FROM producers
 		WHERE id = $1
 		RETURNING id, first_name, last_name, document_number, birth_date, phone_number, address, is_active, created_at, updated_at;
 	`
-
 	row := ps.db.QueryRowContext(
 		ctx, q,
 		id,

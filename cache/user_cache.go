@@ -8,7 +8,6 @@ import (
 )
 
 func (c *RedisCache) SetUser(key string, value *models.User) {
-
 	client := c.GetClient()
 	json, err := json.Marshal(&value)
 
@@ -24,7 +23,6 @@ func (c *RedisCache) SetUser(key string, value *models.User) {
 }
 
 func (c *RedisCache) GetUser(key string) *models.User {
-
 	client := c.GetClient()
 	val, err := client.Get(key).Result()
 

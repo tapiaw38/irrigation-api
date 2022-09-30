@@ -14,7 +14,6 @@ type PostgresRepository struct {
 
 // ConnectPostgres connects to the postgres database
 func ConnectPostgres(url string) (*PostgresRepository, error) {
-
 	db, err := sql.Open("postgres", url)
 
 	if err != nil {
@@ -41,6 +40,7 @@ func (postgres *PostgresRepository) MakeMigration() error {
 	return rows.Close()
 }
 
+// CheckConnection db
 func (postgres *PostgresRepository) CheckConnection() bool {
 	db, err := postgres.db.Conn(context.Background())
 

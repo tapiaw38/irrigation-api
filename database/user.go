@@ -11,7 +11,6 @@ import (
 
 // CheckUser checks if a user and email exists in the database
 func (ur *PostgresRepository) CheckUser(email string) (models.User, bool) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	q := `
@@ -19,13 +18,9 @@ func (ur *PostgresRepository) CheckUser(email string) (models.User, bool) {
 		FROM users
 		WHERE email = $1;
 	`
-
 	rows := ur.db.QueryRowContext(ctx, q, email)
-
 	var user models.User
-
 	var picture, phoneNumber, address sql.NullString
-
 	err := rows.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -41,33 +36,26 @@ func (ur *PostgresRepository) CheckUser(email string) (models.User, bool) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
 	user.Picture = picture.String
 	user.PhoneNumber = phoneNumber.String
 	user.Address = address.String
-
 	if err != nil {
 		log.Println(err)
 		return user, false
 	}
-
 	return user, true
-
 }
 
 // CreateUser inserts a new user into the database
 func (ur *PostgresRepository) CreateUser(ctx context.Context, u *models.User) (models.User, error) {
-
 	q := `
     INSERT INTO users (first_name, last_name, username, email, picture, phone_number, address, password, is_active, is_admin, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
     `
-
 	if err := u.HashPassword(); err != nil {
 		return models.User{}, err
 	}
-
 	row := ur.db.QueryRowContext(
 		ctx, q,
 		u.FirstName,
@@ -83,71 +71,52 @@ func (ur *PostgresRepository) CreateUser(ctx context.Context, u *models.User) (m
 		time.Now(),
 		time.Now(),
 	)
-
 	users, err := ScanRowUsers(row)
-
 	if err != nil {
 		log.Println(err)
 		return models.User{}, err
 	}
-
 	return users, nil
-
 }
 
 // DeleteUser deletes a user from the database
 func (ur *PostgresRepository) DeleteUser(ctx context.Context, id string) error {
-
 	q := `
 	UPDATE users
 		SET is_active = false
 		WHERE id = $1;
 	`
-
 	rows, err := ur.db.PrepareContext(ctx, q)
-
 	if err != nil {
 		return err
 	}
-
 	defer rows.Close()
-
 	_, err = rows.ExecContext(ctx, id)
-
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // Get all users from database
 func (ur *PostgresRepository) GetUsers(ctx context.Context) ([]models.User, error) {
-
 	q := `
 	SELECT id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at
 		FROM users;
 	`
-
 	rows, err := ur.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
-
 	users := []models.User{}
-
 	for rows.Next() {
 		u, err := ScanRowUsers(rows)
-
 		if err != nil {
 			return nil, err
 		}
-
 		users = append(users, u)
 	}
-
 	return users, nil
 }
 
@@ -175,7 +144,6 @@ func (ur *PostgresRepository) GetUserById(ctx context.Context, id string) (model
 
 // Get user by username from database
 func (ur *PostgresRepository) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
-
 	q := `
 	SELECT id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at
 		FROM users
@@ -193,12 +161,10 @@ func (ur *PostgresRepository) GetUserByUsername(ctx context.Context, username st
 	}
 
 	return u, nil
-
 }
 
 // UpdateUser updates a user in the database
 func (ur *PostgresRepository) UpdateUser(ctx context.Context, id string, u models.User) (models.User, error) {
-
 	q := `
 	UPDATE users
 		SET 
@@ -220,12 +186,10 @@ func (ur *PostgresRepository) UpdateUser(ctx context.Context, id string, u model
 	}
 
 	return u, nil
-
 }
 
 // PartialUpdateUser updates a user in the database
 func (ur *PostgresRepository) PartialUpdateUser(ctx context.Context, id string, u models.User) (models.User, error) {
-
 	q := `
 	UPDATE users
 		SET 
@@ -247,7 +211,6 @@ func (ur *PostgresRepository) PartialUpdateUser(ctx context.Context, id string, 
 		WHERE id = $10
 		RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
 	`
-
 	row := ur.db.QueryRowContext(
 		ctx, q, u.FirstName, u.LastName, u.Email,
 		u.Picture, u.PhoneNumber, u.Address,
