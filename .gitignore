@@ -22,3 +22,4 @@ go.work
 
 # Editor backup file
 .idea
+.fleet

@@ -49,9 +49,16 @@ func (ur *PostgresRepository) CheckUser(email string) (models.User, bool) {
 // CreateUser inserts a new user into the database
 func (ur *PostgresRepository) CreateUser(ctx context.Context, u *models.User) (models.User, error) {
 	q := `
-    INSERT INTO users (first_name, last_name, username, email, picture, phone_number, address, password, is_active, is_admin, created_at, updated_at)
+    INSERT INTO users (
+			first_name, last_name, username, 
+			email, picture, phone_number, 
+			address, password, is_active, 
+			is_admin, created_at, updated_at
+		)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
+        RETURNING id, first_name, last_name, username, 
+			email, picture, phone_number, address, 
+			is_active, is_admin, created_at, updated_at;
     `
 	if err := u.HashPassword(); err != nil {
 		return models.User{}, err
@@ -101,7 +108,9 @@ func (ur *PostgresRepository) DeleteUser(ctx context.Context, id string) error {
 // Get all users from database
 func (ur *PostgresRepository) GetUsers(ctx context.Context) ([]models.User, error) {
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at
+	SELECT id, first_name, last_name, username, 
+			email, picture, phone_number, address, 
+			is_active, is_admin, created_at, updated_at
 		FROM users;
 	`
 	rows, err := ur.db.QueryContext(ctx, q)
@@ -124,7 +133,9 @@ func (ur *PostgresRepository) GetUsers(ctx context.Context) ([]models.User, erro
 func (ur *PostgresRepository) GetUserById(ctx context.Context, id string) (models.User, error) {
 
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, 
+			picture, phone_number, address, is_active, 
+			is_admin, created_at, updated_at
 		FROM users
 		WHERE id = $1;
 	`
@@ -145,7 +156,9 @@ func (ur *PostgresRepository) GetUserById(ctx context.Context, id string) (model
 // Get user by username from database
 func (ur *PostgresRepository) GetUserByUsername(ctx context.Context, username string) (models.User, error) {
 	q := `
-	SELECT id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at
+	SELECT id, first_name, last_name, username, email, 
+			picture, phone_number, address, is_active, 
+			is_admin, created_at, updated_at
 		FROM users
 		WHERE username = $1;
 	`
@@ -168,9 +181,13 @@ func (ur *PostgresRepository) UpdateUser(ctx context.Context, id string, u model
 	q := `
 	UPDATE users
 		SET 
-		first_name = $1, last_name = $2, email = $3, picture = $4, phone_number = $5, address = $6, is_active = $7, is_admin = $8, updated_at = $9
+			first_name = $1, last_name = $2, email = $3, 
+			picture = $4, phone_number = $5, address = $6, 
+			is_active = $7, is_admin = $8, updated_at = $9
 		WHERE id = $10
-		RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
+		RETURNING id, first_name, last_name, username, 
+			email, picture, phone_number, address, 
+			is_active, is_admin, created_at, updated_at;
 	`
 
 	row := ur.db.QueryRowContext(
@@ -209,7 +226,9 @@ func (ur *PostgresRepository) PartialUpdateUser(ctx context.Context, id string, 
 			is_admin = $8,
 			updated_at = $9
 		WHERE id = $10
-		RETURNING id, first_name, last_name, username, email, picture, phone_number, address, is_active, is_admin, created_at, updated_at;
+		RETURNING id, first_name, last_name, username, 
+			email, picture, phone_number, address, 
+			is_active, is_admin, created_at, updated_at;
 	`
 	row := ur.db.QueryRowContext(
 		ctx, q, u.FirstName, u.LastName, u.Email,

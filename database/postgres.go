@@ -3,8 +3,11 @@ package database
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
+	"log"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
@@ -24,20 +27,23 @@ func ConnectPostgres(url string) (*PostgresRepository, error) {
 }
 
 // MakeMigration creates the database schema
-func (postgres *PostgresRepository) MakeMigration() error {
-	b, err := ioutil.ReadFile("database/models.sql")
-
+func (postgres *PostgresRepository) MakeMigration(databaseUrl string) error {
+	m, err := migrate.New(
+		"file://database/migrations",
+		databaseUrl,
+	)
 	if err != nil {
 		return err
 	}
-
-	rows, err := postgres.db.Query(string(b))
-
-	if err != nil {
+	if err := m.Up(); err != nil {
+		if err == migrate.ErrNoChange {
+			log.Println("migrations:", err)
+			return nil
+		}
 		return err
 	}
 
-	return rows.Close()
+	return nil
 }
 
 // CheckConnection db

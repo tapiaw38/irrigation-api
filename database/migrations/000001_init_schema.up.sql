@@ -1,3 +1,21 @@
+CREATE TABLE IF NOT EXISTS cities (
+    id BIGSERIAL NOT NULL,
+    city_name VARCHAR(255) NOT NULL,
+    latitude DECIMAL(10,8) DEFAULT 0.0,
+    longitude DECIMAL(11,8) DEFAULT 0.0
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+    id BIGSERIAL NOT NULL,
+    city BIGINT NOT NULL UNIQUE,
+    map_zoom INTEGER DEFAULT 13,
+    hours_hectare DECIMAL(4,2) DEFAULT 2.0,
+    CONSTRAINT pk_settings PRIMARY KEY (id),
+    CONSTRAINT fk_city_settings FOREIGN KEY (city)
+    REFERENCES settings(id)
+    ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL NOT NULL,
     first_name VARCHAR(255) NOT NULL,

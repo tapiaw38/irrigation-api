@@ -23,6 +23,7 @@ func (ts *PostgresRepository) CreateTurn(ctx context.Context, turn models.Turn) 
 		time.Now(),
 		time.Now(),
 	)
+
 	t, err := ScanRowTurn(row)
 
 	if err != nil {
@@ -258,6 +259,7 @@ func (ts *PostgresRepository) GetTurnByID(ctx context.Context, id string) (model
 // CreateTurnProduction creates a TurnProduction.
 func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error) {
 	var tps models.TurnResponse
+
 	q := `
 	INSERT INTO turns_productions (turn_id, production_id)
 		VALUES ($1, $2)
@@ -268,22 +270,29 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 		turnID,
 		turnProduction.ProductionID,
 	)
+
 	tp, err := ScanRowTurnProduction(row)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	q = `
 	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
 		FROM turns
 		WHERE id = $1;
 	`
+
 	row = ts.db.QueryRowContext(ctx, q, tp.TurnID)
+
 	tps, err = ScanRowTurnResponse(row)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	q = `
 	SELECT productions.id,  producers.id, producers.first_name, producers.last_name,
 		producers.document_number, producers.birth_date, producers.phone_number,
@@ -309,10 +318,12 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 		ctx, q,
 		tps.ID,
 	)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	for rows.Next() {
 		pds, err := ScanRowProductionTurnResponse(rows)
 		if err != nil {
@@ -322,12 +333,14 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 		pds.WateringHour = 2 * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
+
 	return tps, nil
 }
 
 // DeleteTurnProduction deletes a TurnProduction.
 func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error) {
 	var tps models.TurnResponse
+
 	q := `
 	DELETE FROM turns_productions
 		WHERE turn_id = $1 AND production_id = $2
@@ -338,22 +351,28 @@ func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID s
 		turnID,
 		turnProduction.ProductionID,
 	)
+
 	tp, err := ScanRowTurnProduction(row)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	q = `
 	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
 		FROM turns
 		WHERE id = $1;
 	`
 	row = ts.db.QueryRowContext(ctx, q, tp.TurnID)
+
 	tps, err = ScanRowTurnResponse(row)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	q = `
 	SELECT productions.id,  producers.id, producers.first_name, producers.last_name,
 		producers.document_number, producers.birth_date, producers.phone_number,
@@ -379,10 +398,12 @@ func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID s
 		ctx, q,
 		tps.ID,
 	)
+
 	if err != nil {
 		log.Println(err)
 		return tps, err
 	}
+
 	for rows.Next() {
 		pds, err := ScanRowProductionTurnResponse(rows)
 		if err != nil {
@@ -392,5 +413,6 @@ func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID s
 		pds.WateringHour = 2 * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
+
 	return tps, nil
 }

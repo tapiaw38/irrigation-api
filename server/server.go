@@ -106,7 +106,7 @@ func (b *Broker) Serve(binder func(s Server, r *mux.Router)) {
 			panic(err)
 		}
 
-		err = db.MakeMigration()
+		err = db.MakeMigration(b.Config().DatabaseURL)
 
 		if err != nil {
 			panic(err)
