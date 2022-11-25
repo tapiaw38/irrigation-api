@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine3.13 as builder
+FROM golang:1.16-alpine as builder
 
 # The latest alpine images don't have some tools like (`git` and `bash`).
 # Adding git, bash and openssh to the image

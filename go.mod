@@ -1,6 +1,6 @@
 module github.com/tapiaw38/irrigation-api
 
-go 1.13
+go 1.16
 
 require (
 	github.com/aws/aws-sdk-go v1.44.22
