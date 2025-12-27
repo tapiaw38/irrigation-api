@@ -93,6 +93,15 @@ func TurnRoutes() *mux.Router {
 	return r
 }
 
+// ConfigurationRoutes is a function that returns a router for the configuration routes
+func ConfigurationRoutes() *mux.Router {
+	r := mux.NewRouter()
+	r.HandleFunc("/", GetConfigurationHandler).Methods("GET")
+	r.HandleFunc("/update", UpdateConfigurationHandler).Methods("PUT")
+
+	return r
+}
+
 func WebSocketRoutes(s server.Server) *mux.Router {
 
 	r := mux.NewRouter()

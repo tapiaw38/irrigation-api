@@ -54,6 +54,9 @@ type Repository interface {
 	DeleteTurn(ctx context.Context, id string) (models.Turn, error)
 	CreateTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error)
 	DeleteTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error)
+	// configuration
+	GetConfiguration(ctx context.Context) (models.Configuration, error)
+	UpdateConfiguration(ctx context.Context, config *models.Configuration) (models.Configuration, error)
 }
 
 var implementation Repository

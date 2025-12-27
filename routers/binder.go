@@ -16,6 +16,7 @@ func BinderRoutes(s server.Server, router *mux.Router) {
 	mount(router, "/sections", SectionRoutes())
 	mount(router, "/intakes", IntakeRoutes())
 	mount(router, "/turns", TurnRoutes())
+	mount(router, "/configuration", ConfigurationRoutes())
 	mount(router, "/ws", WebSocketRoutes(s))
 }
 

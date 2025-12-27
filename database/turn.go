@@ -8,6 +8,18 @@ import (
 	"github.com/tapiaw38/irrigation-api/models"
 )
 
+// getWateringHourFactor retrieves the watering hour factor from configuration
+// Returns default value of 2.0 if configuration is not available
+func (ts *PostgresRepository) getWateringHourFactor(ctx context.Context) float64 {
+	config, err := ts.GetConfiguration(ctx)
+	if err != nil {
+		// Return default factor if configuration is not available
+		log.Println("Warning: Could not get configuration, using default watering hour factor of 2.0")
+		return 2.0
+	}
+	return config.WateringHourFactor
+}
+
 // CreateTurn creates a new Turn.
 func (ts *PostgresRepository) CreateTurn(ctx context.Context, turn models.Turn) (models.Turn, error) {
 	q := `
@@ -36,6 +48,9 @@ func (ts *PostgresRepository) CreateTurn(ctx context.Context, turn models.Turn) 
 
 // GetTurns returns all the Turns.
 func (ts *PostgresRepository) GetTurns(ctx context.Context) ([]models.TurnResponse, error) {
+	// Get watering hour factor from configuration
+	wateringHourFactor := ts.getWateringHourFactor(ctx)
+
 	q := `
 	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
 		FROM turns
@@ -95,7 +110,7 @@ func (ts *PostgresRepository) GetTurns(ctx context.Context) ([]models.TurnRespon
 				log.Println(err)
 				return nil, err
 			}
-			pds.WateringHour = 2 * pds.Area
+			pds.WateringHour = wateringHourFactor * pds.Area
 		}
 
 		turns = append(turns, trs)
@@ -106,6 +121,9 @@ func (ts *PostgresRepository) GetTurns(ctx context.Context) ([]models.TurnRespon
 
 // UpdateTurn updates a Turn.
 func (ts *PostgresRepository) UpdateTurn(ctx context.Context, id string, turn models.Turn) (models.TurnResponse, error) {
+	// Get watering hour factor from configuration
+	wateringHourFactor := ts.getWateringHourFactor(ctx)
+
 	q := `
 	UPDATE turns
 		SET start_date = $1, updated_at = $2
@@ -164,7 +182,7 @@ func (ts *PostgresRepository) UpdateTurn(ctx context.Context, id string, turn mo
 			log.Println(err)
 			return t, err
 		}
-		pds.WateringHour = 2 * pds.Area
+		pds.WateringHour = wateringHourFactor * pds.Area
 		t.Productions = append(t.Productions, pds)
 	}
 
@@ -196,6 +214,9 @@ func (ts *PostgresRepository) DeleteTurn(ctx context.Context, id string) (models
 
 // GetTurnByID returns a Turn by ID.
 func (ts *PostgresRepository) GetTurnByID(ctx context.Context, id string) (models.TurnResponse, error) {
+	// Get watering hour factor from configuration
+	wateringHourFactor := ts.getWateringHourFactor(ctx)
+
 	q := `
 	SELECT id, start_date, turn_hours, end_date, created_at, updated_at
 		FROM turns
@@ -249,7 +270,7 @@ func (ts *PostgresRepository) GetTurnByID(ctx context.Context, id string) (model
 			log.Println(err)
 			return turn, err
 		}
-		pds.WateringHour = 2 * pds.Area
+		pds.WateringHour = wateringHourFactor * pds.Area
 		turn.Productions = append(turn.Productions, pds)
 	}
 
@@ -258,6 +279,9 @@ func (ts *PostgresRepository) GetTurnByID(ctx context.Context, id string) (model
 
 // CreateTurnProduction creates a TurnProduction.
 func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error) {
+	// Get watering hour factor from configuration
+	wateringHourFactor := ts.getWateringHourFactor(ctx)
+
 	var tps models.TurnResponse
 
 	q := `
@@ -332,7 +356,7 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 			log.Println(err)
 			return tps, err
 		}
-		pds.WateringHour = 2 * pds.Area
+		pds.WateringHour = wateringHourFactor * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
 
@@ -341,6 +365,9 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 
 // DeleteTurnProduction deletes a TurnProduction.
 func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID string, turnProduction models.TurnProduction) (models.TurnResponse, error) {
+	// Get watering hour factor from configuration
+	wateringHourFactor := ts.getWateringHourFactor(ctx)
+
 	var tps models.TurnResponse
 
 	q := `
@@ -412,7 +439,7 @@ func (ts *PostgresRepository) DeleteTurnProduction(ctx context.Context, turnID s
 			log.Println(err)
 			return tps, err
 		}
-		pds.WateringHour = 2 * pds.Area
+		pds.WateringHour = wateringHourFactor * pds.Area
 		tps.Productions = append(tps.Productions, pds)
 	}
 
