@@ -10,6 +10,14 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.html
+
+# Build directories
+tmp/
+build/
+
+# Air log files
+build-errors.log
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

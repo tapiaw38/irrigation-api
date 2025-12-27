@@ -263,6 +263,8 @@ func (ts *PostgresRepository) CreateTurnProduction(ctx context.Context, turnID s
 	q := `
 	INSERT INTO turns_productions (turn_id, production_id)
 		VALUES ($1, $2)
+		ON CONFLICT (turn_id, production_id) DO UPDATE
+		SET turn_id = EXCLUDED.turn_id
 		RETURNING turn_id, production_id;
 	`
 	row := ts.db.QueryRowContext(
