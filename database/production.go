@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/tapiaw38/irrigation-api/models"
+	"github.com/tapiaw38/irrigation-api/utils"
 )
 
 // CreateProductions creates a new production in the database
@@ -13,9 +14,9 @@ func (pd *PostgresRepository) CreateProductions(ctx context.Context, productions
 
 	q := `
 	INSERT INTO productions (
-		producer, lote_number, entry, name, production_type, area, 
-		cultivated_area, latitude, longitude, picture, 
-		cadastral_registration, district, created_at, updated_at)
+		producer, lote_number, entry, name, production_type, area,
+		cultivated_area, area_coordinates, cultivated_area_coordinates,
+		picture, cadastral_registration, district, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id;
 	`
@@ -26,6 +27,20 @@ func (pd *PostgresRepository) CreateProductions(ctx context.Context, productions
 
 		var id int64
 
+		area, err := utils.CalculatePolygonArea(p.AreaCoordinates)
+		if err != nil {
+			log.Println(err)
+			return pdr, err
+		}
+		p.Area = float64(int(area*100)) / 100
+
+		cultivatedArea, err := utils.CalculatePolygonArea(p.CultivatedAreaCoordinates)
+		if err != nil {
+			log.Println(err)
+			return pdr, err
+		}
+		p.CultivatedArea = float64(int(cultivatedArea*100)) / 100
+
 		row := pd.db.QueryRowContext(
 			ctx, q,
 			p.Producer,
@@ -35,8 +50,8 @@ func (pd *PostgresRepository) CreateProductions(ctx context.Context, productions
 			p.ProductionType,
 			FloatToNull(p.Area),
 			FloatToNull(p.CultivatedArea),
-			FloatToNull(p.Latitude),
-			FloatToNull(p.Longitude),
+			StringToNull(p.AreaCoordinates),
+			StringToNull(p.CultivatedAreaCoordinates),
 			StringToNull(p.Picture),
 			StringToNull(p.CadastralRegistration),
 			StringToNull(p.District),
@@ -44,7 +59,7 @@ func (pd *PostgresRepository) CreateProductions(ctx context.Context, productions
 			time.Now(),
 		)
 
-		err := row.Scan(&id)
+		err = row.Scan(&id)
 
 		if err != nil {
 			log.Println(err)
@@ -63,13 +78,13 @@ func (pd *PostgresRepository) CreateProductions(ctx context.Context, productions
 func (pd *PostgresRepository) GetProductions(ctx context.Context) ([]models.ProductionResponse, error) {
 
 	q := `
-	SELECT productions.id, producers.id, producers.first_name, producers.last_name, 
-		producers.document_number, producers.birth_date, producers.phone_number, 
+	SELECT productions.id, producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
 		producers.address,
-		productions.lote_number, productions.entry, productions.name, 
-		productions.production_type, productions.area, productions.cultivated_area, 
-		productions.latitude, productions.longitude, productions.picture,
-		productions.cadastral_registration, productions.district,
+		productions.lote_number, productions.entry, productions.name,
+		productions.production_type, productions.area, productions.cultivated_area,
+		productions.area_coordinates, productions.cultivated_area_coordinates,
+		productions.picture, productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id;
@@ -108,9 +123,9 @@ func (pd *PostgresRepository) GetProductionsByID(ctx context.Context, id string)
 		producers.document_number, producers.birth_date, producers.phone_number,
 		producers.address,
 		productions.lote_number, productions.entry, productions.name,
-		productions.production_type, productions.area, productions.cultivated_area, 
-		productions.latitude, productions.longitude, productions.picture,
-		productions.cadastral_registration, productions.district,
+		productions.production_type, productions.area, productions.cultivated_area,
+		productions.area_coordinates, productions.cultivated_area_coordinates,
+		productions.picture, productions.cadastral_registration, productions.district,
 		productions.created_at, productions.updated_at
 		FROM productions
 		LEFT JOIN producers ON productions.producer = producers.id
@@ -132,26 +147,41 @@ func (pd *PostgresRepository) GetProductionsByID(ctx context.Context, id string)
 // UpdateProduction updates a production in the database
 func (pd *PostgresRepository) UpdateProduction(ctx context.Context, id string, p models.Production) (models.ProductionResponse, error) {
 
+	area, err := utils.CalculatePolygonArea(p.AreaCoordinates)
+	if err != nil {
+		log.Println(err)
+		return models.ProductionResponse{}, err
+	}
+	p.Area = float64(int(area*100)) / 100
+
+	cultivatedArea, err := utils.CalculatePolygonArea(p.CultivatedAreaCoordinates)
+	if err != nil {
+		log.Println(err)
+		return models.ProductionResponse{}, err
+	}
+	p.CultivatedArea = float64(int(cultivatedArea*100)) / 100
+
 	q := `
 	WITH updated AS (
 		UPDATE productions
-		SET producer = $1, lote_number = $2, entry = $3, 
-			name = $4, production_type = $5, area = $6, 
-			cultivated_area = $7, latitude = $8, longitude = $9, 
-			picture = $10, cadastral_registration = $11, 
-			district = $12, updated_at = $13
+		SET producer = $1, lote_number = $2, entry = $3,
+			name = $4, production_type = $5, area = $6,
+			cultivated_area = $7, area_coordinates = $8,
+			cultivated_area_coordinates = $9, picture = $10,
+			cadastral_registration = $11, district = $12, updated_at = $13
 		WHERE id = $14
-		RETURNING id, producer, lote_number, entry, name, 
-			production_type, area, cultivated_area, latitude, longitude, 
-			picture, cadastral_registration, district, created_at, updated_at
+		RETURNING id, producer, lote_number, entry, name,
+			production_type, area, cultivated_area, area_coordinates,
+			cultivated_area_coordinates, picture, cadastral_registration,
+			district, created_at, updated_at
 	)
-	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
-		producers.document_number, producers.birth_date, producers.phone_number, 
+	SELECT updated.id, producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
 		producers.address,
-		updated.lote_number, updated.entry, updated.name, 
-		updated.production_type, updated.area, updated.cultivated_area, 
-		updated.latitude, updated.longitude, updated.picture, 
-		updated.cadastral_registration, updated.district, 
+		updated.lote_number, updated.entry, updated.name,
+		updated.production_type, updated.area, updated.cultivated_area,
+		updated.area_coordinates, updated.cultivated_area_coordinates,
+		updated.picture, updated.cadastral_registration, updated.district,
 		updated.created_at, updated.updated_at
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
@@ -166,8 +196,8 @@ func (pd *PostgresRepository) UpdateProduction(ctx context.Context, id string, p
 		p.ProductionType,
 		p.Area,
 		p.CultivatedArea,
-		p.Latitude,
-		p.Longitude,
+		p.AreaCoordinates,
+		p.CultivatedAreaCoordinates,
 		p.Picture,
 		p.CadastralRegistration,
 		p.District,
@@ -188,35 +218,56 @@ func (pd *PostgresRepository) UpdateProduction(ctx context.Context, id string, p
 // UpdateProduction updates a production in the database
 func (pd *PostgresRepository) PartialUpdateProduction(ctx context.Context, id string, p models.Production) (models.ProductionResponse, error) {
 
+	area := p.Area
+	if p.AreaCoordinates != "" {
+		calculatedArea, err := utils.CalculatePolygonArea(p.AreaCoordinates)
+		if err != nil {
+			log.Println(err)
+			return models.ProductionResponse{}, err
+		}
+		area = float64(int(calculatedArea*100)) / 100
+	}
+
+	cultivatedArea := p.CultivatedArea
+	if p.CultivatedAreaCoordinates != "" {
+		calculatedCultivatedArea, err := utils.CalculatePolygonArea(p.CultivatedAreaCoordinates)
+		if err != nil {
+			log.Println(err)
+			return models.ProductionResponse{}, err
+		}
+		cultivatedArea = float64(int(calculatedCultivatedArea*100)) / 100
+	}
+
 	q := `
 	WITH updated AS (
 		UPDATE productions
-		SET 
-			producer = CASE WHEN $1 = 0 THEN producer ELSE $1 END, 
-			lote_number = CASE WHEN $2 = '' THEN lote_number ELSE $2 END, 
+		SET
+			producer = CASE WHEN $1 = 0 THEN producer ELSE $1 END,
+			lote_number = CASE WHEN $2 = '' THEN lote_number ELSE $2 END,
 			entry = CASE WHEN $3 = '' THEN entry ELSE $3 END,
 			name = CASE WHEN $4 = '' THEN name ELSE $4 END,
 			production_type = CASE WHEN $5 = '' THEN production_type ELSE $5 END,
-			area = CASE WHEN $6 = 0 THEN area ELSE $6 END,
-			cultivated_area = CASE WHEN $7 = 0 THEN cultivated_area ELSE $7 END,
-			latitude = CASE WHEN $8 = 0 THEN latitude ELSE $8 END,
-			longitude = CASE WHEN $9 = 0 THEN longitude ELSE $9 END,
+			area = CASE WHEN $6::numeric = 0.0 THEN area ELSE $6::numeric END,
+			cultivated_area = CASE WHEN $7::numeric = 0.0 THEN cultivated_area ELSE $7::numeric END,
+			area_coordinates = CASE WHEN $8::text = '' THEN area_coordinates ELSE $8::jsonb END,
+			cultivated_area_coordinates = CASE WHEN $9::text = '' THEN cultivated_area_coordinates ELSE $9::jsonb END,
 			picture = CASE WHEN $10 = '' THEN picture ELSE $10 END,
 			cadastral_registration = CASE WHEN $11 = '' THEN cadastral_registration ELSE $11 END,
 			district = CASE WHEN $12 = '' THEN district ELSE $12 END,
 			updated_at = $13
 		WHERE id = $14
-		RETURNING id, producer, lote_number, entry, name, 
-			production_type, area, cultivated_area, latitude, longitude, 
-			picture, cadastral_registration, district, created_at, updated_at
+		RETURNING id, producer, lote_number, entry, name,
+			production_type, area, cultivated_area, area_coordinates,
+			cultivated_area_coordinates, picture, cadastral_registration,
+			district, created_at, updated_at
 	)
-	SELECT updated.id, producers.id, producers.first_name, producers.last_name, 
-		producers.document_number, producers.birth_date, producers.phone_number, 
+	SELECT updated.id, producers.id, producers.first_name, producers.last_name,
+		producers.document_number, producers.birth_date, producers.phone_number,
 		producers.address,
-		updated.lote_number, updated.entry, updated.name, 
-		updated.production_type, updated.area, updated.cultivated_area, 
-		updated.latitude, updated.longitude, updated.picture, 
-		updated.cadastral_registration, updated.district, 
+		updated.lote_number, updated.entry, updated.name,
+		updated.production_type, updated.area, updated.cultivated_area,
+		updated.area_coordinates, updated.cultivated_area_coordinates,
+		updated.picture, updated.cadastral_registration, updated.district,
 		updated.created_at, updated.updated_at
 	FROM updated
 	LEFT JOIN producers ON updated.producer = producers.id
@@ -229,10 +280,10 @@ func (pd *PostgresRepository) PartialUpdateProduction(ctx context.Context, id st
 		p.Entry,
 		p.Name,
 		p.ProductionType,
-		p.Area,
-		p.CultivatedArea,
-		p.Latitude,
-		p.Longitude,
+		area,
+		cultivatedArea,
+		p.AreaCoordinates,
+		p.CultivatedAreaCoordinates,
 		p.Picture,
 		p.CadastralRegistration,
 		p.District,
@@ -257,8 +308,9 @@ func (pd *PostgresRepository) DeleteProduction(ctx context.Context, id string) (
 	DELETE FROM productions
 		WHERE id = $1
 		RETURNING id, producer, lote_number, entry, name,
-			production_type, area, cultivated_area, latitude, longitude, 
-			picture, cadastral_registration, district, created_at, updated_at;
+			production_type, area, cultivated_area, area_coordinates,
+			cultivated_area_coordinates, picture, cadastral_registration,
+			district, created_at, updated_at;
 	`
 
 	row := pd.db.QueryRowContext(ctx, q, id)

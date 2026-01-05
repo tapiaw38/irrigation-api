@@ -134,6 +134,48 @@ func DeleteProductionHandler(w http.ResponseWriter, r *http.Request) {
 	ResponseWithJson(w, response, http.StatusOK)
 }
 
+func UpdateProductionCoordinatesHandler(w http.ResponseWriter, r *http.Request) {
+
+	type CoordinatesUpdate struct {
+		AreaCoordinates           string `json:"area_coordinates,omitempty"`
+		CultivatedAreaCoordinates string `json:"cultivated_area_coordinates,omitempty"`
+	}
+
+	var coordinates CoordinatesUpdate
+
+	id := mux.Vars(r)["id"]
+
+	if id == "" {
+		http.Error(w, "An error occurred, id is required", 400)
+		return
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&coordinates)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to decode coordinates "+err.Error(), 400)
+		return
+	}
+
+	defer r.Body.Close()
+
+	ctx := r.Context()
+
+	var production models.Production
+	production.AreaCoordinates = coordinates.AreaCoordinates
+	production.CultivatedAreaCoordinates = coordinates.CultivatedAreaCoordinates
+
+	pds, err := repository.PartialUpdateProduction(ctx, id, production)
+
+	if err != nil {
+		http.Error(w, "An error occurred when trying to update production coordinates in database "+err.Error(), 400)
+		return
+	}
+
+	response := NewResponse(Message, "ok", pds)
+	ResponseWithJson(w, response, http.StatusOK)
+}
+
 func UploadPictureHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

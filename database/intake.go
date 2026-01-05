@@ -86,10 +86,11 @@ func (is *PostgresRepository) GetIntakes(ctx context.Context) ([]models.IntakeRe
 		SELECT productions.id,  producers.id, producers.first_name, producers.last_name,
 			producers.document_number, producers.birth_date, producers.phone_number,
 			producers.address,
-			productions.lote_number, productions.entry, 
-			productions.name, productions.production_type, productions.area, 
-			productions.cultivated_area, productions.latitude, productions.longitude, 
-			productions.picture, productions.cadastral_registration, productions.district,
+			productions.lote_number, productions.entry,
+			productions.name, productions.production_type, productions.area,
+			productions.cultivated_area, productions.area_coordinates,
+			productions.cultivated_area_coordinates, productions.picture,
+			productions.cadastral_registration, productions.district,
 			intakes_productions.watering_order, productions.created_at, productions.updated_at
 			FROM productions
 			LEFT JOIN producers ON productions.producer = producers.id
@@ -152,7 +153,8 @@ func (is *PostgresRepository) GetIntakeByID(ctx context.Context, id string) (mod
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.cultivated_area, productions.area_coordinates,
+		productions.cultivated_area_coordinates, 
 		productions.picture, productions.cadastral_registration, productions.district,
 		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
@@ -306,7 +308,8 @@ func (is *PostgresRepository) CreateIntakeProduction(ctx context.Context, intake
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.cultivated_area, productions.area_coordinates,
+		productions.cultivated_area_coordinates, 
 		productions.picture, productions.cadastral_registration, productions.district,
 		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
@@ -395,7 +398,8 @@ func (is *PostgresRepository) UpdateIntakeProduction(ctx context.Context, intake
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.cultivated_area, productions.area_coordinates,
+		productions.cultivated_area_coordinates, 
 		productions.picture, productions.cadastral_registration, productions.district,
 		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions
@@ -482,7 +486,8 @@ func (is *PostgresRepository) DeleteIntakeProduction(ctx context.Context, intake
 		producers.address,
 		productions.lote_number, productions.entry, 
 		productions.name, productions.production_type, productions.area, 
-		productions.cultivated_area, productions.latitude, productions.longitude, 
+		productions.cultivated_area, productions.area_coordinates,
+		productions.cultivated_area_coordinates, 
 		productions.picture, productions.cadastral_registration, productions.district,
 		intakes_productions.watering_order, productions.created_at, productions.updated_at
 		FROM productions

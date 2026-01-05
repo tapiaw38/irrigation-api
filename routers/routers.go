@@ -45,6 +45,7 @@ func ProductionRoutes(s server.Server) *mux.Router {
 	r.HandleFunc("/update/{id}", UpdateProductionHandler).Methods("PUT")
 	r.HandleFunc("/delete/{id}", DeleteProductionHandler).Methods("DELETE")
 	r.HandleFunc("/upload/picture/{id}", UploadPictureHandler(s)).Methods("PUT")
+	r.HandleFunc("/update/coordinates/{id}", UpdateProductionCoordinatesHandler).Methods("PATCH")
 
 	return r
 }

@@ -79,9 +79,9 @@ func ScanRowProducers(s Scanner) (models.Producer, error) {
 func ScanRowProduction(s Scanner) (models.Production, error) {
 	pd := models.Production{}
 
-	var latitude, longitude sql.NullFloat64
 	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+	var areaCoordinates, cultivatedAreaCoordinates sql.NullString
 
 	err := s.Scan(
 		&pd.ID,
@@ -92,8 +92,8 @@ func ScanRowProduction(s Scanner) (models.Production, error) {
 		&pd.ProductionType,
 		&area,
 		&cultivatedArea,
-		&latitude,
-		&longitude,
+		&areaCoordinates,
+		&cultivatedAreaCoordinates,
 		&picture,
 		&cadastralRegistration,
 		&district,
@@ -112,8 +112,8 @@ func ScanRowProduction(s Scanner) (models.Production, error) {
 	pd.District = district.String
 	pd.Area = area.Float64
 	pd.CultivatedArea = cultivatedArea.Float64
-	pd.Latitude = latitude.Float64
-	pd.Longitude = longitude.Float64
+	pd.AreaCoordinates = areaCoordinates.String
+	pd.CultivatedAreaCoordinates = cultivatedAreaCoordinates.String
 
 	return pd, nil
 }
@@ -122,9 +122,9 @@ func ScanRowProduction(s Scanner) (models.Production, error) {
 func ScanRowProductionResponse(s Scanner) (models.ProductionResponse, error) {
 	pdcs := models.ProductionResponse{}
 
-	var latitude, longitude sql.NullFloat64
 	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+	var areaCoordinates, cultivatedAreaCoordinates sql.NullString
 
 	var producerId sql.NullInt64
 	var producerFirstName, producerLastName sql.NullString
@@ -146,8 +146,8 @@ func ScanRowProductionResponse(s Scanner) (models.ProductionResponse, error) {
 		&pdcs.ProductionType,
 		&area,
 		&cultivatedArea,
-		&latitude,
-		&longitude,
+		&areaCoordinates,
+		&cultivatedAreaCoordinates,
 		&picture,
 		&cadastralRegistration,
 		&district,
@@ -166,8 +166,8 @@ func ScanRowProductionResponse(s Scanner) (models.ProductionResponse, error) {
 	pdcs.District = district.String
 	pdcs.Area = area.Float64
 	pdcs.CultivatedArea = cultivatedArea.Float64
-	pdcs.Latitude = latitude.Float64
-	pdcs.Longitude = longitude.Float64
+	pdcs.AreaCoordinates = areaCoordinates.String
+	pdcs.CultivatedAreaCoordinates = cultivatedAreaCoordinates.String
 
 	pdcs.Producer.ID = producerId.Int64
 	pdcs.Producer.FirstName = producerFirstName.String
@@ -339,9 +339,9 @@ func ScanRowIntakeProduction(s Scanner) (models.IntakeProduction, error) {
 func ScanRowProductionIntakeResponse(s Scanner) (models.ProductionIntakeResponse, error) {
 	pir := models.ProductionIntakeResponse{}
 
-	var latitude, longitude sql.NullFloat64
 	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+	var areaCoordinates, cultivatedAreaCoordinates sql.NullString
 
 	var producerId sql.NullInt64
 	var producerFirstName, producerLastName sql.NullString
@@ -365,8 +365,8 @@ func ScanRowProductionIntakeResponse(s Scanner) (models.ProductionIntakeResponse
 		&pir.ProductionType,
 		&area,
 		&cultivatedArea,
-		&latitude,
-		&longitude,
+		&areaCoordinates,
+		&cultivatedAreaCoordinates,
 		&picture,
 		&cadastralRegistration,
 		&district,
@@ -386,9 +386,9 @@ func ScanRowProductionIntakeResponse(s Scanner) (models.ProductionIntakeResponse
 	pir.District = district.String
 	pir.Area = area.Float64
 	pir.CultivatedArea = cultivatedArea.Float64
+	pir.AreaCoordinates = areaCoordinates.String
+	pir.CultivatedAreaCoordinates = cultivatedAreaCoordinates.String
 	pir.WateringOrder = wateringOrder.Int64
-	pir.Latitude = latitude.Float64
-	pir.Longitude = longitude.Float64
 
 	pir.Producer.ID = producerId.Int64
 	pir.Producer.FirstName = producerFirstName.String
@@ -459,9 +459,9 @@ func ScanRowTurnResponse(s Scanner) (models.TurnResponse, error) {
 func ScanRowProductionTurnResponse(s Scanner) (models.ProductionTurnResponse, error) {
 	ptr := models.ProductionTurnResponse{}
 
-	var latitude, longitude sql.NullFloat64
 	var area, cultivatedArea sql.NullFloat64
 	var loteNumber, entry, picture, cadastralRegistration, district sql.NullString
+	var areaCoordinates, cultivatedAreaCoordinates sql.NullString
 
 	var producerId sql.NullInt64
 	var producerFirstName, producerLastName sql.NullString
@@ -486,8 +486,8 @@ func ScanRowProductionTurnResponse(s Scanner) (models.ProductionTurnResponse, er
 		&ptr.ProductionType,
 		&area,
 		&cultivatedArea,
-		&latitude,
-		&longitude,
+		&areaCoordinates,
+		&cultivatedAreaCoordinates,
 		&picture,
 		&cadastralRegistration,
 		&district,
@@ -509,13 +509,12 @@ func ScanRowProductionTurnResponse(s Scanner) (models.ProductionTurnResponse, er
 	ptr.District = district.String
 	ptr.Area = area.Float64
 	ptr.CultivatedArea = cultivatedArea.Float64
+	ptr.AreaCoordinates = areaCoordinates.String
+	ptr.CultivatedAreaCoordinates = cultivatedAreaCoordinates.String
 
 	ptr.IntakeID = intakeId.Int64
 	ptr.IntakeNumber = intakeNumber.String
 	ptr.WateringOrder = wateringOrder.Int64
-
-	ptr.Latitude = latitude.Float64
-	ptr.Longitude = longitude.Float64
 
 	ptr.Producer.ID = producerId.Int64
 	ptr.Producer.FirstName = producerFirstName.String
